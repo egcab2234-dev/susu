@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>何鑫出貨助手</title>
+    <style>
+        body { background-color: #f0f5fa; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; width: 100%; max-width: 400px; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #0056b3; text-align: center; }
+        button { width: 100%; background: #0056b3; color: white; border: none; padding: 15px; margin-top: 25px; border-radius: 8px; font-size: 18px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h2>🚚 出貨排程紀錄</h2>
+    <form action="https://docs.google.com/forms/d/1FAIpQLSf8vRSFD3tLCACclyDF_AJHQii18i6O31VsbMXHetzdkw2aSQ/formResponse" method="POST" target="hidden_iframe" onsubmit="submitted=true;">
+        <label>entry.1982123113</label>
+        <input type="text" name="entry.數字1" required style="width:100%; padding:10px; margin-top:5px;">
+        
+        <label>entry.2054996507</label>
+        <textarea name="entry.數字2" rows="3" style="width:100%; padding:10px; margin-top:5px;"></textarea>
+
+        <button type="submit">確認送出</button>
+    </form>
+    <script type="text/javascript">var submitted=false;</script>
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;" onload="if(submitted){alert('提交成功！');location.reload();}"></iframe>
+</div>
+</body>
+</html>
