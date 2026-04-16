@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>何鑫實業 3M3 雲端智庫 V7.0</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <style>
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f6; --warning: #f39c12; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; }
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
+        .sync-status { font-size: 0.85em; color: #ecf0f1; margin-top: 8px; background: rgba(0,0,0,0.2); display: inline-block; padding: 4px 12px; border-radius: 15px; }
+        .container { max-width: 1000px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        /* 選單樣式 */
+        .tab-menu { display: flex; background: #34495e; }
+        .tab-btn { flex: 1; padding: 18px; border: none; color: #bdc3c7; cursor: pointer; background: none; font-size: 1.05em; transition: 0.3s; }
+        .tab-btn.active { background: var(--accent); color: white; font-weight: bold; }
+
+        .tab-content { display: none; padding: 30px; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+
+        /* 互動診斷區 */
+        .option-btn { display: block; width: 100%; padding: 16px; margin: 10px 0; background: white; border: 1px solid #ddd; border-radius: 8px; text-align: left; cursor: pointer; transition: 0.2s; font-size: 1.1em; }
+        .option-btn:hover { border-color: var(--accent); background: #f0f7ff; transform: translateY(-2px); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        
+        .checklist-item { display: flex; align-items: center; padding: 14px; border-bottom: 1px solid #eee; font-size: 1.1em; }
+        .checklist-item input { width: 24px; height: 24px; margin-right: 15px; cursor: pointer; }
+        
+        /* 表單與防呆 */
+        .form-group { margin-bottom: 20px; }
+        label { font-weight: bold; display: block; margin-bottom: 8px; color: var(--primary); }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
+        .locked-field { background-color: #f8f9fa !important; cursor: not-allowed; color: #7f8c8d; border: 1px dashed #bdc3c7; }
+        .highlight-issue { border: 2px solid var(--warning) !important; background-color: #fffdf5; }
+        .hint-text { font-size: 0.9em; color: var(--warning); margin-top: 6px; font-weight: bold; display: none; }
+
+        .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; transition: 0.3s; }
+        .main-btn:hover { background: #219150; box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: left; }
+        th { background: #f8f9fa; color: var(--primary); }
+        .badge { background: var(--accent); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; margin-left: 10px; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>何鑫實業 3M3 拌合機雲端智庫</h1>
+    <div id="status" class="sync-status">📡 正在連接雲端資料庫...</div>
+</div>
+
+<div class="container">
+    <div class="tab-menu">
+        <button id="btnDiag" class="tab-btn active" onclick="switchTab('DiagTab')">🔍 互動排除指南</button>
+        <button id="btnInput" class="tab-btn" onclick="switchTab('InputTab')">✍️ 維修經驗回報</button>
+        <button id="btnLog" class="tab-btn" onclick="switchTab('LogTab')">📋 全員維修日誌</button>
+    </div>
+
+    <div id="DiagTab" class="tab-content active">
+        <div id="diag-container">
+            <h3>🤖 智慧診斷助手</h3>
+            <p>請點選發生異常的部位開始排查：</p>
+            <div id="diag-options">正在從雲端下載最新經驗...</div>
+        </div>
+        <div id="checklist-container" style="display:none;">
+            <h3 id="checklist-title">✅ 排除點檢表</h3>
+            <div id="checklist-content"></div>
+            <button class="option-btn" style="text-align:center; background:#eee; margin-top:20px; font-weight:bold;" onclick="resetDiag()">← 返回重新選擇</button>
+        </div>
+    </div>
+
+    <div id="InputTab" class="tab-content">
+        <h3>新增/增補維修經驗</h3>
+        <p style="color: #666; font-size: 0.9em;">系統會自動比對現有問題，重複的問題將會自動合併檢查步驟。</p>
+        <div class="form-group">
+            <label>故障日期</label>
+            <input type="date" id="f_date">
+        </div>
+        <div class="form-group">
+            <label>故障狀況描述</label>
+            <input type="text" id="f_issue" list="existing-issues" oninput="checkIssueDuplicate(this.value)" placeholder="例如：卸料門開閉不圓滑">
+            <datalist id="existing-issues"></datalist>
+            <div id="lock-hint" class="hint-text">⚠️ 已偵測到既有問題：分類已鎖定，新步驟將自動併入。</div>
+        </div>
+        <div class="form-group">
+            <label>所屬部位</label>
+            <select id="f_part">
+                <option value="">-- 請選擇 --</option>
+                <option value="動力系統">動力系統 (馬達/皮帶)</option>
+                <option value="密封系統">密封系統 (軸頭/防漿環)</option>
+                <option value="卸料系統">卸料系統 (汽缸/電磁閥)</option>
+                <option value="潤滑系統">潤滑系統 (油泵/管路)</option>
+                <option value="攪拌系統">攪拌系統 (拌臂/襯板)</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>此次採取的檢查或處理動作 (每行一個步驟)</label>
+            <textarea id="f_steps" rows="5" placeholder="例如：對軸銷部進行注油&#10;檢查汽缸杆是否彎曲"></textarea>
+        </div>
+        <button id="saveBtn" class="main-btn" onclick="saveData()">💾 儲存並同步雲端</button>
+    </div>
+
+    <div id="LogTab" class="tab-content">
+        <h3>全員維修日誌</h3>
+        <table id="logTable">
+            <thead><tr><th>日期</th><th>部位</th><th>故障狀況</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // --- 1. 配置您的 Firebase ---
+    const firebaseConfig = {
+        databaseURL: "https://hexin-database-default-rtdb.firebaseio.com/" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    let guideDB = [];
+    let logsDB = [];
+
+    // --- 2. 雲端資料監聽 ---
+    // 監聽排除指南
+    database.ref('guide').on('value', (snapshot) => {
+        const val = snapshot.val();
+        guideDB = val ? Object.values(val) : [];
+        updateDatalist();
+        resetDiag();
+        document.getElementById('status').innerText = "✅ 雲端連線正常";
+    });
+
+    // 監聽維修日誌
+    database.ref('logs').on('value', (snapshot) => {
+        const val = snapshot.val();
+        logsDB = val ? Object.values(val) : [];
+        renderLogs();
+    });
+
+    // --- 3. 介面與防呆邏輯 ---
+    function switchTab(id) {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if(id === 'InputTab') resetInputForm();
+    }
+
+    function checkIssueDuplicate(val) {
+        const partSelect = document.getElementById('f_part');
+        const hint = document.getElementById('lock-hint');
+        const issueInput = document.getElementById('f_issue');
+        
+        const match = guideDB.find(i => i.issue.trim() === val.trim());
+
+        if(match) {
+            partSelect.value = match.part;
+            partSelect.disabled = true;
+            partSelect.classList.add('locked-field');
+            issueInput.classList.add('highlight-issue');
+            hint.style.display = 'block';
+        } else {
+            partSelect.disabled = false;
+            partSelect.classList.remove('locked-field');
+            issueInput.classList.remove('highlight-issue');
+            hint.style.display = 'none';
+        }
+    }
+
+    function resetInputForm() {
+        document.getElementById('f_issue').value = '';
+        document.getElementById('f_steps').value = '';
+        const partSelect = document.getElementById('f_part');
+        partSelect.value = '';
+        partSelect.disabled = false;
+        partSelect.classList.remove('locked-field');
+        document.getElementById('f_issue').classList.remove('highlight-issue');
+        document.getElementById('lock-hint').style.display = 'none';
+        document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+    }
+
+    // --- 4. 資料儲存與合併 ---
+    async function saveData() {
+        const date = document.getElementById('f_date').value;
+        const part = document.getElementById('f_part').value;
+        const issue = document.getElementById('f_issue').value.trim();
+        const stepsRaw = document.getElementById('f_steps').value.trim();
+        
+        if(!part || !issue || !stepsRaw) { alert("請確實填寫所有欄位！"); return; }
+        
+        const newSteps = stepsRaw.split('\n').map(s => s.trim()).filter(s => s !== "");
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.disabled = true;
+        saveBtn.innerText = "正在同步...";
+
+        try {
+            // 尋找雲端是否已有該問題
+            let existingKey = null;
+            const snapshot = await database.ref('guide').once('value');
+            const currentGuides = snapshot.val() || {};
+            
+            for (let key in currentGuides) {
+                if (currentGuides[key].issue === issue) {
+                    existingKey = key;
+                    break;
+                }
+            }
+
+            if (existingKey) {
+                // 合併步驟並去重
+                let combined = [...currentGuides[existingKey].steps, ...newSteps];
+                await database.ref('guide/' + existingKey).update({
+                    steps: [...new Set(combined)]
+                });
+            } else {
+                // 新增問題
+                await database.ref('guide').push({ part, issue, steps: newSteps });
+            }
+
+            // 紀錄到日誌
+            await database.ref('logs').push({ date, part, issue });
+
+            alert("同步成功！經驗已加入雲端智庫。");
+            switchTab('DiagTab');
+        } catch (e) {
+            alert("同步失敗，請檢查網路連線。");
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerText = "💾 儲存並同步雲端";
+        }
+    }
+
+    // --- 5. 診斷與顯示邏輯 ---
+    function resetDiag() {
+        const options = document.getElementById('diag-options');
+        document.getElementById('diag-container').style.display = 'block';
+        document.getElementById('checklist-container').style.display = 'none';
+        options.innerHTML = '';
+        
+        const parts = [...new Set(guideDB.map(item => item.part))];
+        if(parts.length === 0) { options.innerHTML = "目前尚無維修資料，請先至回報頁面輸入經驗。"; return; }
+
+        parts.forEach(part => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = `📂 ${part}`;
+            btn.onclick = () => {
+                options.innerHTML = `<h4>[${part}] 請選擇具體故障狀況：</h4>`;
+                guideDB.filter(i => i.part === part).forEach(item => {
+                    const ibtn = document.createElement('button');
+                    ibtn.className = 'option-btn';
+                    ibtn.innerHTML = `❓ ${item.issue} <span class="badge">${item.steps.length} 個檢查項</span>`;
+                    ibtn.onclick = () => showChecklist(item);
+                    options.appendChild(ibtn);
+                });
+                const bbtn = document.createElement('button');
+                bbtn.innerText = "← 返回部位選擇";
+                bbtn.className = 'option-btn';
+                bbtn.style.textAlign = "center";
+                bbtn.style.background = "#f8f9fa";
+                bbtn.onclick = resetDiag;
+                options.appendChild(bbtn);
+            };
+            options.appendChild(btn);
+        });
+    }
+
+    function showChecklist(item) {
+        document.getElementById('diag-container').style.display = 'none';
+        document.getElementById('checklist-container').style.display = 'block';
+        document.getElementById('checklist-title').innerText = `✅ 故障排除點檢：${item.issue}`;
+        const content = document.getElementById('checklist-content');
+        content.innerHTML = '<p style="color:#666; margin-bottom:15px;">請依序檢查以下項目並勾選確認：</p>';
+        
+        item.steps.forEach((step, idx) => {
+            content.innerHTML += `
+                <div class="checklist-item">
+                    <input type="checkbox" id="chk${idx}">
+                    <label for="chk${idx}">${step}</label>
+                </div>`;
+        });
+    }
+
+    function renderLogs() {
+        const tbody = document.querySelector('#logTable tbody');
+        tbody.innerHTML = '';
+        [...logsDB].reverse().forEach(log => {
+            tbody.innerHTML += `<tr>
+                <td>${log.date}</td>
+                <td>${log.part}</td>
+                <td>${log.issue}</td>
+            </tr>`;
+        });
+    }
+
+    function updateDatalist() {
+        const datalist = document.getElementById('existing-issues');
+        datalist.innerHTML = '';
+        guideDB.forEach(item => {
+            let opt = document.createElement('option');
+            opt.value = item.issue;
+            datalist.appendChild(opt);
+        });
+    }
+
+    window.onload = () => {
+        document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
+    };
+</script>
+</body>
+</html>
