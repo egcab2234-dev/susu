@@ -3,48 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>何鑫雲端智庫 V12.0 - 防呆精進版</title>
+    <title>何鑫雲端智庫 V15.0 - 精純排版版</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f6; --danger: #e74c3c; --warning: #f1c40f; }
-        body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; }
-        .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f6; --danger: #e74c3c; --warning: #f1c40f; --text: #333; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; color: var(--text); }
+        .header { background: var(--primary); color: white; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .admin-bar { background: #1a252f; color: #95a5a6; padding: 10px 20px; text-align: right; font-size: 0.9em; }
-        .container { max-width: 1000px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        .container { max-width: 800px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        /* 頁籤導覽 */
         .tab-menu { display: flex; background: #34495e; }
-        .tab-btn { flex: 1; padding: 18px; border: none; color: #bdc3c7; cursor: pointer; background: none; font-size: 1.05em; }
+        .tab-btn { flex: 1; padding: 18px; border: none; color: #bdc3c7; cursor: pointer; background: none; font-size: 1.05em; transition: 0.3s; }
         .tab-btn.active { background: var(--accent); color: white; font-weight: bold; }
-        .tab-content { display: none; padding: 30px; }
+
+        .tab-content { display: none; padding: 25px; min-height: 400px; }
         .tab-content.active { display: block; }
 
-        .option-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 18px 20px; margin: 12px 0; background: white; border: 1px solid #ddd; border-radius: 8px; text-align: left; cursor: pointer; box-sizing: border-box; }
-        .option-btn:hover { border-color: var(--accent); background: #f0f7ff; }
-        .option-text { flex-grow: 1; font-size: 1.1em; color: #333; }
+        /* 搜尋框增強 */
+        .search-container { margin-bottom: 20px; }
+        .search-input { width: 100%; padding: 15px 20px; border: 2px solid var(--accent); border-radius: 30px; font-size: 1.1em; outline: none; box-sizing: border-box; transition: 0.3s; }
+        .search-input:focus { box-shadow: 0 0 8px rgba(52, 152, 219, 0.4); }
 
-        .checklist-item { display: flex; justify-content: space-between; align-items: center; padding: 14px; border-bottom: 1px solid #eee; font-size: 1.1em; }
-        .checklist-left { display: flex; align-items: center; flex-grow: 1; }
-        .checklist-left input { width: 22px; height: 22px; margin-right: 15px; }
+        /* 列表按鈕設計 */
+        .option-btn { 
+            display: flex; justify-content: space-between; align-items: center; 
+            width: 100%; padding: 18px 20px; margin: 10px 0; 
+            background: white; border: 1px solid #eee; border-radius: 10px; 
+            text-align: left; cursor: pointer; box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        .option-btn:hover { border-color: var(--accent); background: #f0f7ff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+        .option-text { font-size: 1.1em; font-weight: 500; }
+        .option-badge { background: #eee; padding: 2px 10px; border-radius: 20px; font-size: 0.8em; color: #7f8c8d; }
+
+        /* 點檢清單排版 */
+        .checklist-item { 
+            display: flex; justify-content: space-between; align-items: flex-start; 
+            padding: 15px; border-bottom: 1px solid #f1f1f1; line-height: 1.5;
+        }
+        .checklist-item:last-child { border-bottom: none; }
+        .checklist-left { display: flex; align-items: flex-start; flex: 1; cursor: pointer; }
+        .checklist-left input { width: 22px; height: 22px; margin-right: 15px; margin-top: 2px; flex-shrink: 0; }
         
+        /* 表單樣式 */
         .form-group { margin-bottom: 20px; }
-        label { font-weight: bold; display: block; margin-bottom: 8px; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
-        
-        /* 防呆鎖定樣式 */
-        .locked-field { background-color: #f8f9fa !important; color: #7f8c8d; border: 1px dashed var(--warning) !important; cursor: not-allowed; }
-        .lock-msg { color: var(--warning); font-size: 0.85em; font-weight: bold; margin-top: 5px; display: none; }
+        label { font-weight: bold; display: block; margin-bottom: 8px; color: var(--primary); }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 1em; }
+        .locked-field { background-color: #f8f9fa !important; border: 1px dashed var(--warning) !important; color: #7f8c8d; cursor: not-allowed; }
 
-        .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; }
-        .btn-delete-small { color: var(--danger); border: 1px solid var(--danger); background: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; margin-left: 10px; }
-        .btn-delete-small:hover { background: var(--danger); color: white; }
+        .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; transition: 0.3s; }
+        .main-btn:hover { background: #219150; }
+        .btn-delete-small { color: var(--danger); border: 1px solid var(--danger); background: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; margin-left: 10px; flex-shrink: 0; }
+        
+        /* 日誌表格 */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; border-bottom: 2px solid #eee; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+
+        @media (max-width: 600px) {
+            .container { margin: 0; border-radius: 0; }
+            .tab-btn { padding: 15px 5px; font-size: 0.95em; }
+        }
     </style>
 </head>
 <body>
 
 <div class="admin-bar">
-    <span id="admin-status">👤 身分：一般維修員</span> | 
-    <a href="javascript:void(0)" onclick="loginAdmin()" style="color:#3498db; text-decoration:none; font-weight:bold;">🔓 管理員登入</a>
+    <span id="admin-status">👤 一般身分</span> | 
+    <a href="javascript:void(0)" onclick="loginAdmin()" id="login-link" style="color:#3498db; text-decoration:none; font-weight:bold;">🔓 管理登入</a>
 </div>
 
 <div class="header">
@@ -59,62 +89,66 @@
     </div>
 
     <div id="DiagTab" class="tab-content active">
-        <div id="diag-container">
-            <h3>🤖 智慧診斷助手</h3>
-            <div id="diag-options">正在載入雲端智庫...</div>
+        <div class="search-container" id="search-box">
+            <input type="text" class="search-input" id="search-input" oninput="filterGuides(this.value)" placeholder="🔍 輸入關鍵字 (如：馬達、皮帶)...">
         </div>
+        
+        <div id="diag-container">
+            <div id="diag-options">載入雲端智庫中...</div>
+        </div>
+
         <div id="checklist-container" style="display:none;">
-            <h3 id="checklist-title"></h3>
-            <div id="checklist-content"></div>
-            <button class="option-btn" style="justify-content:center; background:#eee; font-weight:bold; margin-top:20px;" onclick="resetDiag()">← 返回部位選擇</button>
+            <h3 id="checklist-title" style="color:var(--primary); border-left: 5px solid var(--accent); padding-left: 10px;"></h3>
+            <div id="checklist-content" style="background: #fafafa; border-radius: 8px; padding: 5px;"></div>
+            <button class="option-btn" style="justify-content:center; background:#eee; font-weight:bold; margin-top:25px;" onclick="resetDiag()">← 返回故障分類</button>
         </div>
     </div>
 
     <div id="InputTab" class="tab-content">
-        <h3>新增維修經驗</h3>
-        <div class="form-group">
-            <label>故障日期</label>
-            <input type="date" id="f_date">
-        </div>
+        <h3 style="color:var(--primary);">✍️ 新增維修經驗</h3>
         <div class="form-group">
             <label>故障狀況描述</label>
-            <input type="text" id="f_issue" list="existing-issues" oninput="checkIssueDuplicate(this.value)" placeholder="請輸入或選擇現有問題">
+            <input type="text" id="f_issue" list="existing-issues" oninput="checkIssueDuplicate(this.value)" placeholder="例：攪拌馬達異常過熱">
             <datalist id="existing-issues"></datalist>
-            <div id="lock-msg" class="lock-msg">⚠️ 此問題已存在，分類已鎖定以防錯亂。</div>
+            <div id="lock-msg" style="color:var(--warning); font-size:0.85em; margin-top:5px; display:none; font-weight:bold;">⚠️ 此故障已存在，分類已自動鎖定。</div>
         </div>
         <div class="form-group">
             <label>所屬部位</label>
             <select id="f_part">
-                <option value="">-- 請選擇 --</option>
+                <option value="">-- 請選擇部位 --</option>
                 <option value="動力系統">動力系統</option>
                 <option value="密封系統">密封系統</option>
                 <option value="卸料系統">卸料系統</option>
                 <option value="潤滑系統">潤滑系統</option>
                 <option value="攪拌系統">攪拌系統</option>
+                <option value="輸送系統">輸送系統</option>
             </select>
         </div>
         <div class="form-group">
-            <label>此次維修動作 (每行一個步驟)</label>
-            <textarea id="f_steps" rows="5" placeholder="請輸入您此次採取的排除方法..."></textarea>
+            <label>建議排除步驟 (每行一項)</label>
+            <textarea id="f_steps" rows="6" placeholder="第一步：...&#10;第二步：..."></textarea>
         </div>
-        <button class="main-btn" onclick="saveData()">💾 儲存並同步雲端</button>
+        <button id="saveBtn" class="main-btn" onclick="saveData()">💾 儲存並同步雲端</button>
     </div>
 
     <div id="LogTab" class="tab-content">
-        <h3>雲端維修日誌</h3>
-        <table id="logTable" style="width:100%; border-collapse: collapse;">
-            <thead><tr style="background:#f8f9fa;">
-                <th style="padding:12px; text-align:left;">日期</th>
-                <th style="padding:12px; text-align:left;">部位</th>
-                <th style="padding:12px; text-align:left;">故障狀況</th>
-                <th class="admin-only" style="display:none; padding:12px; text-align:left;">操作</th>
-            </tr></thead>
+        <h3 style="color:var(--primary);">📋 近期維修紀錄</h3>
+        <table id="logTable">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>部位</th>
+                    <th>故障狀況</th>
+                    <th id="admin-log-head" style="display:none;">操作</th>
+                </tr>
+            </thead>
             <tbody></tbody>
         </table>
     </div>
 </div>
 
 <script>
+    // 1. 初始化資料庫 (沿用您的 Firebase 設定)
     const firebaseConfig = { databaseURL: "https://hexin-database-default-rtdb.firebaseio.com/" };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
@@ -124,141 +158,145 @@
     let isAdmin = false;
     const ADMIN_PW = "888";
 
-    function loginAdmin() {
-        if(prompt("請輸入管理員密碼：") === ADMIN_PW) {
-            isAdmin = true;
-            document.getElementById('admin-status').innerText = "🔑 身分：系統管理員";
-            document.getElementById('admin-status').style.color = "#27ae60";
-            resetDiag(); renderLogs();
-            alert("已取得管理權限。");
-        } else { alert("密碼錯誤！"); }
+    // 2. 核心功能：快速搜尋與過濾
+    function filterGuides(keyword) {
+        const options = document.getElementById('diag-options');
+        if(!keyword) { resetDiag(); return; }
+        
+        options.innerHTML = `<p style="color:var(--accent); font-weight:bold;">🔍 包含「${keyword}」的結果：</p>`;
+        let found = false;
+        Object.keys(guideDB).forEach(key => {
+            const item = guideDB[key];
+            if(item.issue.toLowerCase().includes(keyword.toLowerCase()) || item.part.includes(keyword)) {
+                found = true;
+                const ibtn = document.createElement('div');
+                ibtn.className = 'option-btn';
+                ibtn.innerHTML = `
+                    <span class="option-text"><small style="color:gray;">[${item.part}]</small><br>${item.issue}</span>
+                    <span class="option-badge">${item.steps.length} 步驟</span>
+                `;
+                ibtn.onclick = () => showChecklist(key);
+                options.appendChild(ibtn);
+            }
+        });
+        if(!found) options.innerHTML = '<p style="text-align:center; color:gray; margin-top:20px;">找不到符合的資料...</p>';
     }
 
-    database.ref('guide').on('value', (snap) => { guideDB = snap.val() || {}; updateDatalist(); resetDiag(); });
-    database.ref('logs').on('value', (snap) => { logsDB = snap.val() || {}; renderLogs(); });
-
-    // --- 關鍵防呆邏輯修復 ---
-    function checkIssueDuplicate(val) {
-        const partSelect = document.getElementById('f_part');
-        const lockMsg = document.getElementById('lock-msg');
-        
-        // 尋找是否有匹配的已存在問題
-        let match = Object.values(guideDB).find(i => i.issue.trim() === val.trim());
-        
-        if(match) {
-            partSelect.value = match.part;
-            partSelect.disabled = true;
-            partSelect.classList.add('locked-field');
-            lockMsg.style.display = 'block';
-        } else {
-            partSelect.disabled = false;
-            partSelect.classList.remove('locked-field');
-            lockMsg.style.display = 'none';
-        }
-    }
-
+    // 3. 核心功能：儲存資料
     async function saveData() {
-        const date = document.getElementById('f_date').value;
-        const part = document.getElementById('f_part').value; // 注意：disabled 時抓不到值，需處理
         const issue = document.getElementById('f_issue').value.trim();
         const stepsRaw = document.getElementById('f_steps').value.trim();
-        
-        // 如果 part 是 disabled 的，我們要從 guideDB 裡抓回那個正確的 part
-        let finalPart = part;
+        const date = new Date().toISOString().split('T')[0];
+        let part = document.getElementById('f_part').value;
+
+        // 防呆：如果 part 被鎖定抓不到，從資料庫找回正確分類
         if(!part) {
             const match = Object.values(guideDB).find(i => i.issue.trim() === issue);
-            if(match) finalPart = match.part;
+            if(match) part = match.part;
         }
 
-        if(!finalPart || !issue || !stepsRaw) { alert("請填寫完整！"); return; }
+        if(!part || !issue || !stepsRaw) { alert("請務必填寫分類、名稱與步驟！"); return; }
         
         const newSteps = stepsRaw.split('\n').map(s => s.trim()).filter(s => s !== "");
         let existingKey = Object.keys(guideDB).find(key => guideDB[key].issue === issue);
 
-        if(existingKey) {
-            let combined = [...guideDB[existingKey].steps, ...newSteps];
-            await database.ref('guide/' + existingKey).update({ steps: [...new Set(combined)] });
-        } else {
-            await database.ref('guide').push({ part: finalPart, issue, steps: newSteps });
-        }
-        await database.ref('logs').push({ date, part: finalPart, issue });
-        alert("資料已成功存入雲端！");
-        switchTab('DiagTab');
+        try {
+            if(existingKey) {
+                let combined = [...guideDB[existingKey].steps, ...newSteps];
+                await database.ref('guide/' + existingKey).update({ steps: [...new Set(combined)] });
+            } else {
+                await database.ref('guide').push({ part, issue, steps: newSteps });
+            }
+            await database.ref('logs').push({ date, part, issue });
+            alert("✅ 資料同步成功！");
+            location.reload();
+        } catch(e) { alert("儲存失敗，請檢查網路連線。"); }
     }
 
-    // 刪除邏輯 (維持 V11.0 規格)
-    async function deleteGuideItem(key, event) {
+    // 4. 管理員功能：登入與刪除
+    function loginAdmin() {
+        if(prompt("請輸入系統密碼：") === ADMIN_PW) {
+            isAdmin = true;
+            document.getElementById('admin-status').innerHTML = "🔑 <span style='color:var(--success)'>系統管理員</span>";
+            document.getElementById('login-link').style.display = 'none';
+            document.getElementById('admin-log-head').style.display = 'table-cell';
+            resetDiag(); renderLogs();
+        } else { alert("密碼錯誤！"); }
+    }
+
+    async function deleteStep(guideKey, index) {
+        if(!confirm("確定要刪除這項步驟嗎？")) return;
+        let steps = [...guideDB[guideKey].steps];
+        steps.splice(index, 1);
+        if(steps.length === 0) await database.ref('guide/' + guideKey).remove();
+        else await database.ref('guide/' + guideKey).update({ steps });
+        showChecklist(guideKey);
+    }
+
+    async function deleteFullIssue(key, event) {
         event.stopPropagation();
-        if(!isAdmin) return;
-        if(confirm("確定要將此題目移除嗎？")) await database.ref('guide/' + key).remove();
+        if(confirm("確定要將整個故障狀況刪除嗎？")) await database.ref('guide/' + key).remove();
     }
 
-    async function deleteStep(guideKey, stepIndex) {
-        if(!isAdmin) return;
-        if(confirm("確定要刪除這項步驟嗎？")) {
-            let currentSteps = [...guideDB[guideKey].steps];
-            currentSteps.splice(stepIndex, 1);
-            if(currentSteps.length === 0) await database.ref('guide/' + guideKey).remove();
-            else await database.ref('guide/' + guideKey).update({ steps: currentSteps });
-            showChecklist(guideKey);
-        }
-    }
-
-    async function deleteLog(key) {
-        if(!isAdmin) return;
-        if(confirm("確定刪除日誌？")) await database.ref('logs/' + key).remove();
-    }
-
-    function resetDiag() {
-        const options = document.getElementById('diag-options');
-        document.getElementById('diag-container').style.display = 'block';
-        document.getElementById('checklist-container').style.display = 'none';
-        options.innerHTML = '';
-        const guides = guideDB;
-        const parts = [...new Set(Object.values(guides).map(i => i.part))];
-        
-        parts.forEach(part => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerHTML = `<span class="option-text">📂 ${part}</span>`;
-            btn.onclick = () => {
-                options.innerHTML = `<h4>[${part}] 請選擇故障狀況：</h4>`;
-                Object.keys(guides).filter(k => guides[k].part === part).forEach(key => {
-                    const item = guides[key];
-                    const ibtn = document.createElement('div');
-                    ibtn.className = 'option-btn';
-                    ibtn.innerHTML = `
-                        <span class="option-text">❓ ${item.issue} (${item.steps.length}項)</span>
-                        ${isAdmin ? `<button class="btn-delete-small" onclick="deleteGuideItem('${key}', event)">🗑️ 刪除整題</button>` : ''}
-                    `;
-                    ibtn.onclick = () => showChecklist(key);
-                    options.appendChild(ibtn);
-                });
-                const b = document.createElement('button');
-                b.className='option-btn'; b.style.justifyContent='center'; b.innerHTML='<span style="font-weight:bold;">← 返回</span>'; b.onclick=resetDiag;
-                options.appendChild(b);
-            };
-            options.appendChild(btn);
-        });
-    }
+    // 5. 介面渲染邏輯
+    database.ref('guide').on('value', (snap) => { guideDB = snap.val() || {}; updateDatalist(); resetDiag(); });
+    database.ref('logs').on('value', (snap) => { logsDB = snap.val() || {}; renderLogs(); });
 
     function showChecklist(guideKey) {
         const item = guideDB[guideKey];
         if(!item) { resetDiag(); return; }
         document.getElementById('diag-container').style.display = 'none';
+        document.getElementById('search-box').style.display = 'none';
         document.getElementById('checklist-container').style.display = 'block';
-        document.getElementById('checklist-title').innerText = `✅ 排查：${item.issue}`;
+        document.getElementById('checklist-title').innerText = item.issue;
+        
         const content = document.getElementById('checklist-content');
         content.innerHTML = '';
         item.steps.forEach((step, index) => {
             content.innerHTML += `
                 <div class="checklist-item">
-                    <div class="checklist-left">
-                        <input type="checkbox" id="step_${index}"> 
-                        <label for="step_${index}">${step}</label>
+                    <div class="checklist-left" onclick="this.querySelector('input').click()">
+                        <input type="checkbox">
+                        <span>${step}</span>
                     </div>
                     ${isAdmin ? `<button class="btn-delete-small" onclick="deleteStep('${guideKey}', ${index})">❌</button>` : ''}
                 </div>`;
+        });
+    }
+
+    function resetDiag() {
+        document.getElementById('diag-container').style.display = 'block';
+        document.getElementById('search-box').style.display = 'block';
+        document.getElementById('checklist-container').style.display = 'none';
+        const options = document.getElementById('diag-options');
+        options.innerHTML = '';
+        
+        const parts = [...new Set(Object.values(guideDB).map(i => i.part))];
+        parts.forEach(part => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = `<span class="option-text">📂 ${part}</span><span class="option-badge">展開</span>`;
+            btn.onclick = () => {
+                options.innerHTML = `<h4 style="color:var(--accent)">[${part}] 的常見故障：</h4>`;
+                Object.keys(guideDB).filter(k => guideDB[k].part === part).forEach(key => {
+                    const item = guideDB[key];
+                    const ibtn = document.createElement('div');
+                    ibtn.className = 'option-btn';
+                    ibtn.innerHTML = `
+                        <span class="option-text">❓ ${item.issue}</span>
+                        <div style="display:flex; align-items:center;">
+                            <span class="option-badge">${item.steps.length} 項</span>
+                            ${isAdmin ? `<button class="btn-delete-small" onclick="deleteFullIssue('${key}', event)">🗑️ 刪除</button>` : ''}
+                        </div>
+                    `;
+                    ibtn.onclick = () => showChecklist(key);
+                    options.appendChild(ibtn);
+                });
+                const b = document.createElement('button');
+                b.className='option-btn'; b.style.justifyContent='center'; b.innerHTML='<b>← 返回主分類</b>'; b.onclick=resetDiag;
+                options.appendChild(b);
+            };
+            options.appendChild(btn);
         });
     }
 
@@ -268,11 +306,28 @@
         Object.keys(logsDB).reverse().forEach(key => {
             const log = logsDB[key];
             tbody.innerHTML += `<tr>
-                <td style="padding:12px; border-bottom:1px solid #eee;">${log.date}</td>
-                <td>${log.part}</td><td>${log.issue}</td>
+                <td>${log.date}</td><td>${log.part}</td><td>${log.issue}</td>
                 <td style="${isAdmin ? '' : 'display:none;'}"><button class="btn-delete-small" onclick="deleteLog('${key}')">刪除</button></td>
             </tr>`;
         });
+    }
+
+    async function deleteLog(key) { if(confirm("確定刪除紀錄？")) await database.ref('logs/' + key).remove(); }
+
+    function checkIssueDuplicate(val) {
+        const partSelect = document.getElementById('f_part');
+        const lockMsg = document.getElementById('lock-msg');
+        let match = Object.values(guideDB).find(i => i.issue.trim() === val.trim());
+        if(match) { 
+            partSelect.value = match.part; 
+            partSelect.disabled = true; 
+            partSelect.classList.add('locked-field');
+            lockMsg.style.display = 'block';
+        } else { 
+            partSelect.disabled = false; 
+            partSelect.classList.remove('locked-field');
+            lockMsg.style.display = 'none';
+        }
     }
 
     function switchTab(id) {
@@ -282,7 +337,7 @@
         if(id === 'InputTab') {
             document.getElementById('f_issue').value = '';
             document.getElementById('f_steps').value = '';
-            checkIssueDuplicate(''); // 重置鎖定狀態
+            checkIssueDuplicate('');
         }
     }
 
@@ -293,8 +348,6 @@
             let opt = document.createElement('option'); opt.value = item.issue; datalist.appendChild(opt);
         });
     }
-
-    window.onload = () => document.getElementById('f_date').value = new Date().toISOString().split('T')[0];
 </script>
 </body>
 </html>
