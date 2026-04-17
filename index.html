@@ -12,36 +12,8 @@
         html { overflow-y: scroll; }
         body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; color: var(--text); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
 
-        /* v16.7.1 Header 優化：Logo 移至左側並排佈局 */
-        .header { background: var(--primary); color: white; padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header-content { 
-            display: flex; 
-            flex-direction: row; /* 強制水平排列 */
-            align-items: center; 
-            justify-content: center; /* 內容居中 */
-            gap: 15px; 
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .header-logo { 
-            height: 55px; /* 稍微縮小高度以保持比例 */
-            width: auto; 
-            max-width: 150px; 
-            object-fit: contain; 
-        }
-        .header h1 { 
-            margin: 0; 
-            font-size: 1.5em; 
-            letter-spacing: 1px; 
-            text-align: left; /* 標題文字左對齊 */
-        }
-
-        /* 手機版微調：如果螢幕太窄，自動縮小字體避免跑版 */
-        @media (max-width: 480px) {
-            .header-content { gap: 10px; }
-            .header-logo { height: 40px; }
-            .header h1 { font-size: 1.1em; }
-        }
+        .header { background: var(--primary); color: white; padding: 25px 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header h1 { margin: 0; font-size: 1.6em; letter-spacing: 1px; }
         
         .admin-bar { background: #1a252f; color: #95a5a6; padding: 10px 20px; text-align: right; font-size: 0.9em; }
         .container { width: 95%; max-width: 800px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; position: relative; flex: 1; display: flex; flex-direction: column; }
@@ -54,16 +26,20 @@
         .tab-content { display: none; padding: 25px; min-height: 500px; box-sizing: border-box; }
         .tab-content.active { display: block; }
 
+        /* V16.4 經典按鈕樣式 */
         .option-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 18px 20px; margin: 10px 0; background: white; border: 1px solid #eee; border-radius: 10px; text-align: left; cursor: pointer; box-sizing: border-box; transition: 0.2s; }
         .option-btn:hover { border-color: var(--accent); background: #f0f7ff; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
         .option-text { flex: 1; font-weight: 500; font-size: 1.1em; }
         .option-badge { background: #eee; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; color: #7f8c8d; }
 
+        /* 點檢表專屬樣式 */
         .instruction-box { background: #eef7ff; border-left: 5px solid var(--accent); padding: 15px; margin-bottom: 20px; border-radius: 4px; color: #34495e; font-size: 0.95em; }
         .checklist-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #f1f1f1; background: #fff; transition: 0.2s; }
+        .checklist-item:last-child { border-bottom: none; }
         .checklist-left { display: flex; align-items: center; flex: 1; cursor: pointer; font-size: 1.1em; }
         .checklist-left input[type="checkbox"] { width: 26px; height: 26px; margin-right: 18px; cursor: pointer; accent-color: var(--success); }
         
+        /* 表單與分析 */
         .search-input { width: 100%; padding: 12px 20px; border: 2px solid var(--accent); border-radius: 30px; font-size: 1.05em; outline: none; box-sizing: border-box; margin-bottom: 20px; }
         .locked-field { background-color: #f8f9fa !important; color: #7f8c8d !important; border: 1px dashed var(--warning) !important; cursor: not-allowed; }
         .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
@@ -81,10 +57,7 @@
 </div>
 
 <div class="header">
-    <div class="header-content">
-        <img src="何鑫LOGO(新版)去背-1.png" alt="何鑫實業" class="header-logo">
-        <h1>拌合機故障排查 雲端智庫</h1>
-    </div>
+    <h1>何鑫實業 拌合機故障排查 雲端智庫</h1>
 </div>
 
 <div class="container">
@@ -164,7 +137,7 @@
 </div>
 
 <div class="footer-version">
-    HEXIN 3M3 SYSTEM | 版本號：V16.7.1 | 經典 UI 優化版
+    HEXIN 3M3 SYSTEM | 版本號：V16.7 | 經典 UI 優化版
 </div>
 
 <script>
@@ -187,6 +160,7 @@
         } else { alert("密碼錯誤"); }
     }
 
+    // 恢復 V16.4 的清單顯示邏輯
     function resetDiag() {
         document.getElementById('diag-main-view').style.display = 'block';
         document.getElementById('checklist-container').style.display = 'none';
@@ -237,6 +211,7 @@
         });
     }
 
+    // 資料處理部分
     async function saveData() {
         const company = document.getElementById('f_company').value.trim() || "未填";
         const factory = document.getElementById('f_factory').value.trim() || "未填";
@@ -309,7 +284,7 @@
     function exportToCSV() { let csv = "\uFEFF日期,公司,廠別,部位,狀況\n"; Object.values(logsDB).forEach(l => { csv += `${l.date},${l.company},${l.factory},${l.part},${l.issue}\n`; }); window.open(URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))); }
     async function deleteLog(key) { if(confirm("刪除？")) await database.ref('logs/'+key).remove(); }
     async function deleteStep(key, idx) { let s = [...guideDB[key].steps]; s.splice(idx,1); if(s.length===0) await database.ref('guide/'+key).remove(); else await database.ref('guide/'+key).update({steps: s}); showChecklist(key); }
-    function switchTab(id) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); event.currentTarget.classList.add('active'); }
+    function switchTab(id) { document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(id).classList.add('active'); }
 </script>
 </body>
 </html>
