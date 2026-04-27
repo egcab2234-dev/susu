@@ -15,61 +15,55 @@
         /* Header 與 Admin Bar */
         .header { background: var(--primary); color: white; padding: 15px 20px; text-align: center; }
         .header-content { display: flex; align-items: center; justify-content: center; gap: 15px; }
-        .header-logo { height: 50px; width: auto; }
+        .header-logo { height: 55px; width: auto; object-fit: contain; }
         .admin-bar { background: #1a252f; color: #95a5a6; padding: 10px 20px; text-align: right; font-size: 0.9em; }
         
-        /* 容器修正：確保內容不超出 */
         .container { width: 95%; max-width: 800px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; flex: 1; display: flex; flex-direction: column; }
         
+        /* 頁籤 UI */
         .tab-menu { display: flex; background: #34495e; }
         .tab-btn { flex: 1; padding: 18px 5px; border: none; color: #bdc3c7; cursor: pointer; background: none; font-size: 1.05em; transition: 0.3s; }
         .tab-btn.active { background: var(--accent); color: white; font-weight: bold; }
 
         .tab-content { display: none; padding: 20px; box-sizing: border-box; }
-        .tab-content.active { display: block; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s; }
 
-        /* 🛠️ 修正：按鈕超出格子的問題 */
+        /* 🛠️ 解決按鈕超出格子的問題 */
         .option-btn { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             width: 100%; 
-            padding: 15px 15px; 
+            padding: 18px 20px; 
             margin: 10px 0; 
             background: white; 
             border: 1px solid #eee; 
             border-radius: 10px; 
             cursor: pointer; 
             transition: 0.2s; 
-            box-sizing: border-box; /* 確保 padding 不增加總寬度 */
-            overflow: hidden; /* 防止溢出 */
+            box-sizing: border-box;
+            overflow: hidden;
         }
-        .option-text { 
-            font-weight: 500; 
-            font-size: 1em; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; /* 文字太長會變... */
-            padding-right: 10px;
-        }
+        .option-btn:hover { border-color: var(--accent); background: #f0f7ff; transform: translateY(-2px); }
+        .option-text { flex: 1; font-weight: 500; font-size: 1.1em; white-space: normal; word-break: break-all; text-align: left; }
 
-        /* 操作指引說明區塊 */
+        /* ✨ 操作指引說明回歸 */
         .guide-instruction { background: #ebf5fb; border-left: 5px solid var(--accent); padding: 15px; margin-bottom: 20px; border-radius: 4px; }
-        .guide-instruction h4 { margin: 0 0 5px 0; color: var(--accent); }
+        .guide-instruction h4 { margin: 0 0 5px 0; color: var(--accent); font-size: 1.1em; }
 
-        /* 輸入欄位樣式 */
         .form-group { margin-bottom: 15px; }
         .form-label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--primary); }
-        .input-field { width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 8px; font-size: 1em; box-sizing: border-box; outline: none; transition: 0.3s; }
+        .input-field { width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 8px; font-size: 1.05em; box-sizing: border-box; outline: none; }
         .input-field:focus { border-color: var(--accent); }
 
         .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; margin-top: 10px; }
         
-        .step-item { padding: 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; }
-        .step-item input { width: 20px; height: 20px; margin-right: 12px; flex-shrink: 0; }
+        .step-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: flex-start; }
+        .step-item input { width: 22px; height: 22px; margin-right: 15px; flex-shrink: 0; margin-top: 2px; }
 
         .locked-field { background-color: #f8f9fa !important; color: #7f8c8d !important; border: 1px dashed #ccc !important; cursor: not-allowed; }
         .footer-version { text-align: center; padding: 15px; color: #bdc3c7; font-size: 0.75em; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -102,17 +96,17 @@
         <div id="checklist-container" style="display:none;">
             <div class="guide-instruction">
                 <h4>📋 操作指引說明</h4>
-                <p>請依照下方步驟逐一進行排查，確認完成後請勾選。若問題依舊，請聯繫主管。</p>
+                <p>請依照下方步驟逐一進行排查並勾選。若所有步驟皆無效，請聯繫主管。</p>
             </div>
-            <h2 id="checklist-title" style="color:var(--primary); font-size:1.3em;"></h2>
+            <h2 id="checklist-title" style="color:var(--primary); font-size:1.3em; margin-bottom:15px; border-bottom:2px solid var(--accent); padding-bottom:10px;"></h2>
             <div id="checklist-content"></div>
-            <button class="main-btn" style="background:var(--primary); margin-top:20px;" onclick="resetDiag()">← 返回清單</button>
+            <button class="main-btn" style="background:var(--primary); margin-top:25px;" onclick="resetDiag()">← 返回系統分類</button>
         </div>
     </div>
 
     <div id="InputTab" class="tab-content">
-        <div id="duplicate-warning" style="display:none; background:#fff9e6; border-left:5px solid var(--warning); padding:10px; border-radius:8px; margin-bottom:15px; color:#856404; font-size:0.9em;">
-            ⚠️ <b>提醒：</b> 此狀況已存在，已自動鎖定系統部位。
+        <div id="duplicate-warning" style="display:none; background:#fff9e6; border-left:5px solid var(--warning); padding:12px; border-radius:8px; margin-bottom:15px; color:#856404;">
+            ⚠️ <b>系統提醒：</b> 此故障已存在，已自動帶入所屬部位。
         </div>
 
         <div class="form-group">
@@ -123,13 +117,13 @@
 
         <div class="form-group">
             <label class="form-label">客戶 / 廠商名稱</label>
-            <input type="text" id="f_client" class="input-field" placeholder="請輸入相關廠商名稱">
+            <input type="text" id="f_client" class="input-field" placeholder="輸入廠商名稱 (如：嘉泰、國產...)">
         </div>
 
         <div class="form-group">
             <label class="form-label">所屬系統部位</label>
             <select id="f_part" class="input-field">
-                <option value="">-- 請選擇 --</option>
+                <option value="">-- 請選擇系統 --</option>
                 <option value="動力系統">動力系統</option>
                 <option value="密封系統">密封系統</option>
                 <option value="卸料系統">卸料系統</option>
@@ -140,24 +134,28 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label">處理的做法 (每行一步驟)</label>
-            <textarea id="f_steps" rows="5" class="input-field" placeholder="請詳細列出排除步驟..."></textarea>
+            <label class="form-label">處理的做法 (每行一個步驟)</label>
+            <textarea id="f_steps" rows="6" class="input-field" placeholder="1. 檢查電源&#10;2. 更換墊片..."></textarea>
         </div>
 
-        <button class="main-btn" onclick="saveData()">💾 儲存經驗並同步</button>
+        <button class="main-btn" onclick="saveData()">💾 儲存經驗並更新雲端</button>
     </div>
 
     <div id="LogTab" class="tab-content">
-        <table style="width:100%; border-collapse: collapse;" id="logTable">
-            <thead><tr style="background:#f8f9fa;"><th>日期</th><th>廠商</th><th>狀況</th><th>管理</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <h3 style="color:var(--primary);">智庫紀錄分析</h3>
+        <div style="overflow-x: auto;">
+            <table style="width:100%; border-collapse: collapse; font-size:0.9em;" id="logTable">
+                <thead><tr style="background:#f8f9fa; border-bottom:2px solid #ddd;"><th style="padding:10px;">日期</th><th>廠商</th><th>狀況</th><th>管理</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<div class="footer-version">HEXIN 3M3 SYSTEM | 版本號：V17.0.5 | 佈局加固穩定版</div>
+<div class="footer-version">HEXIN 3M3 SYSTEM | 版本號：V17.0.6 | 登入與佈局最終修正版</div>
 
 <script>
+    // ✨ 根據截圖精確對準 Firebase 配置
     const firebaseConfig = { 
         apiKey: "AIzaSyBg0uXJqmwY4LnN-wMj2_cpMwb2UODlS84", 
         authDomain: "hexin-database.firebaseapp.com",
@@ -173,6 +171,7 @@
     const auth = firebase.auth();
     let guideDB = {}; let logsDB = {}; let isAdmin = false;
 
+    // 權限狀態監聽
     auth.onAuthStateChanged((user) => {
         if (user && user.email === "fac@herhsin.com") {
             isAdmin = true;
@@ -191,12 +190,18 @@
     });
 
     async function loginAdmin() {
-        const password = prompt("請輸入授權密碼：");
+        const password = prompt("主管您好，請輸入授權密碼：");
         if(!password) return;
-        try { await auth.signInWithEmailAndPassword("fac@herhsin.com", password); } catch (e) { alert("登入失敗"); }
+        try {
+            await auth.signInWithEmailAndPassword("fac@herhsin.com", password);
+            alert("✅ 驗證成功");
+        } catch (error) {
+            console.error(error);
+            alert("❌ 登入失敗！\n1. 請確認 Firebase 設定已生效\n2. 請確認密碼是否正確");
+        }
     }
 
-    function logoutAdmin() { if(confirm("登出？")) auth.signOut().then(() => location.reload()); }
+    function logoutAdmin() { if(confirm("確定登出？")) auth.signOut().then(() => location.reload()); }
 
     database.ref('guide').on('value', (snap) => { guideDB = snap.val() || {}; resetDiag(); updateDatalist(); });
     database.ref('logs').on('value', (snap) => { logsDB = snap.val() || {}; renderLogs(); });
@@ -210,7 +215,7 @@
         parts.forEach(part => {
             const btn = document.createElement('div');
             btn.className = 'option-btn';
-            btn.innerHTML = `<span class="option-text">📂 ${part}</span><span style="color:#bdc3c7; flex-shrink:0;">→</span>`;
+            btn.innerHTML = `<span class="option-text">📂 ${part}</span><span style="color:#bdc3c7;">展開 →</span>`;
             btn.onclick = () => showCategory(part);
             options.appendChild(btn);
         });
@@ -218,7 +223,7 @@
 
     function showCategory(partName) {
         const options = document.getElementById('diag-options');
-        options.innerHTML = `<h3 style="color:var(--accent); margin-bottom:10px;">${partName}</h3>`;
+        options.innerHTML = `<h3 style="color:var(--accent); margin-bottom:15px; border-left:4px solid var(--accent); padding-left:10px;">${partName}</h3>`;
         Object.keys(guideDB).forEach(key => {
             if(guideDB[key].part === partName) {
                 const btn = document.createElement('div');
@@ -228,7 +233,9 @@
                 options.appendChild(btn);
             }
         });
-        const back = document.createElement('button'); back.className = 'main-btn'; back.style.background = '#95a5a6'; back.innerHTML = '← 返回系統分類'; back.onclick = resetDiag; options.appendChild(back);
+        const backBtn = document.createElement('button');
+        backBtn.className = 'main-btn'; backBtn.style.background = '#95a5a6'; backBtn.innerHTML = '← 返回系統部位分類'; backBtn.onclick = resetDiag;
+        options.appendChild(backBtn);
     }
 
     function showChecklist(key) {
@@ -236,7 +243,7 @@
         document.getElementById('diag-main-view').style.display = 'none';
         document.getElementById('checklist-container').style.display = 'block';
         document.getElementById('checklist-title').innerText = item.issue;
-        document.getElementById('checklist-content').innerHTML = item.steps.map(s => `<div class="step-item"><label><input type="checkbox"> ${s}</label></div>`).join('');
+        document.getElementById('checklist-content').innerHTML = item.steps.map(s => `<div class="step-item"><label style="display:flex; cursor:pointer;"><input type="checkbox"> <span>${s}</span></label></div>`).join('');
     }
 
     function checkDuplicate(val) {
@@ -256,8 +263,7 @@
     }
 
     function updateDatalist() {
-        const dl = document.getElementById('existing-issues');
-        dl.innerHTML = '';
+        const dl = document.getElementById('existing-issues'); dl.innerHTML = '';
         Object.values(guideDB).forEach(item => {
             let opt = document.createElement('option'); opt.value = item.issue; dl.appendChild(opt);
         });
@@ -268,11 +274,11 @@
         const part = document.getElementById('f_part').value;
         const client = document.getElementById('f_client').value.trim();
         const steps = document.getElementById('f_steps').value.trim();
-        if(!issue || !part || !steps) return alert("請填寫必填欄位！");
+        if(!issue || !part || !steps) return alert("請完整填寫必填欄位！");
         const data = { part, issue, client, steps: steps.split('\n'), date: new Date().toLocaleDateString() };
         await database.ref('guide').push(data);
         await database.ref('logs').push(data);
-        alert("💾 資料已成功儲存");
+        alert("✅ 儲存成功並更新智庫");
         document.getElementById('f_issue').value = ""; document.getElementById('f_client').value = ""; document.getElementById('f_steps').value = "";
     }
 
@@ -281,7 +287,7 @@
         tbody.innerHTML = '';
         Object.keys(logsDB).reverse().forEach(key => {
             const log = logsDB[key];
-            tbody.innerHTML += `<tr><td style="padding:10px;">${log.date}</td><td>${log.client || '-'}</td><td class="option-text">${log.issue}</td><td>${isAdmin ? '<button style="color:red; background:none; border:none; cursor:pointer;" onclick="deleteLog(\''+key+'\')">刪</button>' : '-'}</td></tr>`;
+            tbody.innerHTML += `<tr style="border-bottom:1px solid #eee;"><td style="padding:10px;">${log.date}</td><td>${log.client || '-'}</td><td>${log.issue}</td><td>${isAdmin ? '<button style="color:red; background:none; border:none; cursor:pointer;" onclick="deleteLog(\''+key+'\')">刪除</button>' : '-'}</td></tr>`;
         });
     }
 
