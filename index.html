@@ -25,7 +25,7 @@
         .tab-content { display: none; padding: 25px; min-height: 500px; box-sizing: border-box; }
         .tab-content.active { display: block; }
         .search-input { width: 100%; padding: 12px 20px; border: 2px solid var(--accent); border-radius: 30px; font-size: 1.05em; outline: none; box-sizing: border-box; margin-bottom: 20px; }
-        .option-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 18px 20px; margin: 10px 0; background: white; border: 1px solid #eee; border-radius: 10px; text-align: left; cursor: pointer; box-sizing: border-box; transition: 0.2s; }
+        .option-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 18px 20px; margin: 10px 0; background: white; border: 1px solid #eee; border-radius: 10px; text-align: left; cursor: pointer; transition: 0.2s; box-sizing: border-box; }
         .option-btn:hover { border-color: var(--accent); background: #f0f7ff; transform: translateY(-2px); }
         .option-text { flex: 1; font-weight: 500; font-size: 1.1em; }
         .option-badge { background: #eee; padding: 4px 10px; border-radius: 20px; font-size: 0.8em; color: #7f8c8d; }
@@ -59,7 +59,7 @@
     <div id="DiagTab" class="tab-content active">
         <div id="diag-main-view">
             <input type="text" class="search-input" oninput="filterGuides(this.value)" placeholder="🔍 搜尋故障關鍵字...">
-            <div id="diag-options">載入中...</div>
+            <div id="diag-options">雲端資料同步中...</div>
         </div>
         <div id="checklist-container" style="display:none;">
             <h3 id="checklist-title" style="color:var(--primary); margin-bottom:10px;"></h3>
@@ -71,11 +71,11 @@
     <div id="InputTab" class="tab-content">
         <h3 style="color:var(--primary);">✍️ 新增維修經驗</h3>
         
-        <div id="duplicate-warning" style="display:none; background:#fff9e6; border:1px solid #ffe58f; padding:10px; border-radius:8px; margin-bottom:15px; color:#856404; font-size:0.9em;">
-            ⚠️ 注意：此故障狀況已存在於雲端資料庫。
+        <div id="duplicate-warning" style="display:none; background:#fff9e6; border:1px solid #ffe58f; padding:10px; border-radius:8px; margin-bottom:15px; color:#856404;">
+            ⚠️ 注意：此故障狀況已存在。
         </div>
 
-        <input type="text" id="f_issue" list="existing-issues" oninput="checkDuplicate(this.value)" class="search-input" style="border-radius:8px; margin-bottom:15px;" placeholder="請輸入故障狀況描述 (例如: 主馬達無法啟動)">
+        <input type="text" id="f_issue" list="existing-issues" oninput="checkDuplicate(this.value)" class="search-input" style="border-radius:8px; margin-bottom:15px;" placeholder="請輸入故障狀況描述">
         <datalist id="existing-issues"></datalist>
 
         <select id="f_part" style="width:100%; padding:12px; border-radius:8px; margin-bottom:15px;">
@@ -88,7 +88,7 @@
             <option value="輸送系統">輸送系統</option>
         </select>
 
-        <textarea id="f_steps" rows="6" style="width:100%; padding:12px; border-radius:8px; margin-bottom:10px;" placeholder="請填寫此故障的做法 (每行一項步驟)"></textarea>
+        <textarea id="f_steps" rows="6" style="width:100%; padding:12px; border-radius:8px; margin-bottom:10px;" placeholder="請填寫此故障的做法 (每行一項)"></textarea>
         <button class="main-btn" onclick="saveData()">💾 儲存並同步雲端</button>
     </div>
 
@@ -101,7 +101,7 @@
     </div>
 </div>
 
-<div class="footer-version">HEXIN 3M3 SYSTEM | 版本號：V16.7.9 | 功能加固版</div>
+<div class="footer-version">HEXIN 3M3 SYSTEM | 版本號：V16.8.0 | 完全連通版</div>
 
 <script>
     const firebaseConfig = { 
@@ -120,7 +120,7 @@
 
     let guideDB = {}; let logsDB = {}; let isAdmin = false;
 
-    // --- 登入與權限監聽 ---
+    // --- 權限監聽 ---
     auth.onAuthStateChanged((user) => {
         if (user && user.email === "fac@herhsin.com") {
             isAdmin = true; activateAdminUI(user.email);
@@ -134,9 +134,9 @@
         if(!password) return;
         try {
             await auth.signInWithEmailAndPassword("fac@herhsin.com", password);
-            alert("✅ 驗證成功");
+            alert("✅ 登入成功");
         } catch (error) {
-            alert("❌ 登入失敗！\n請確認已在 Firebase Console 開啟 Email/Password 登入方式。");
+            alert("❌ 登入失敗！請確認密碼正確。\n錯誤代碼：" + error.code);
         }
     }
 
@@ -166,13 +166,12 @@
     });
     database.ref('logs').on('value', (snap) => { logsDB = snap.val() || {}; renderLogs(); });
 
-    // --- 功能 1：分類摺疊邏輯 ---
+    // --- 分類摺疊功能 ---
     function resetDiag() {
         document.getElementById('diag-main-view').style.display = 'block';
         document.getElementById('checklist-container').style.display = 'none';
         const options = document.getElementById('diag-options');
         options.innerHTML = '';
-
         const parts = [...new Set(Object.values(guideDB).map(i => i.part))];
         parts.forEach(part => {
             const btn = document.createElement('div');
@@ -213,12 +212,11 @@
         content.innerHTML = item.steps.map(s => `<div style="padding:15px; border-bottom:1px solid #eee;"><label><input type="checkbox" style="transform:scale(1.5); margin-right:15px;"> ${s}</label></div>`).join('');
     }
 
-    // --- 功能 2：重複防呆檢查 ---
+    // --- 重複防呆檢查 ---
     function checkDuplicate(val) {
         const warning = document.getElementById('duplicate-warning');
         const partSelect = document.getElementById('f_part');
         let match = Object.values(guideDB).find(i => i.issue.trim() === val.trim());
-
         if(match) {
             warning.style.display = 'block';
             partSelect.value = match.part;
@@ -246,11 +244,10 @@
         const part = document.getElementById('f_part').value;
         const steps = document.getElementById('f_steps').value.trim();
         if(!issue || !part || !steps) return alert("請完整填寫部位、狀況與做法！");
-        
         const data = { part, issue, steps: steps.split('\n'), date: new Date().toLocaleDateString() };
         await database.ref('guide').push(data);
         await database.ref('logs').push(data);
-        alert("✅ 資料已同步雲端");
+        alert("✅ 資料同步成功");
         document.getElementById('f_issue').value = ""; document.getElementById('f_steps').value = "";
     }
 
