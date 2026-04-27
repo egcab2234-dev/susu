@@ -3,47 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>何鑫實業 拌合機智庫</title>
+    <title>何鑫實業 拌合機故障排查系統</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f6; --text: #333; }
-        body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f6; --warning: #f1c40f; --text: #333; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; color: var(--text); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
 
-        .admin-bar { background: #1a252f; color: #95a5a6; padding: 10px 20px; text-align: right; font-size: 0.9em; border-bottom: 1px solid #34495e; }
-        .header { background: var(--primary); color: white; padding: 20px; text-align: center; }
+        /* UI 佈局固定 */
+        .admin-bar { background: #1a252f; color: #95a5a6; padding: 10px 20px; text-align: right; font-size: 0.9em; }
+        .header { background: var(--primary); color: white; padding: 15px 20px; text-align: center; }
+        .header-content { display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .header-logo { height: 45px; width: auto; }
         
-        .container { width: 95%; max-width: 800px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; flex: 1; }
+        .container { width: 95%; max-width: 800px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; flex: 1; display: flex; flex-direction: column; }
         
         .tab-menu { display: flex; background: #34495e; }
-        .tab-btn { flex: 1; padding: 18px; border: none; color: #bdc3c7; cursor: pointer; background: none; font-size: 1.1em; transition: 0.3s; }
+        .tab-btn { flex: 1; padding: 18px 5px; border: none; color: #bdc3c7; cursor: pointer; background: none; font-size: 1.05em; transition: 0.3s; }
         .tab-btn.active { background: var(--accent); color: white; font-weight: bold; }
 
-        .tab-content { display: none; padding: 25px; box-sizing: border-box; }
+        .tab-content { display: none; padding: 20px; box-sizing: border-box; }
         .tab-content.active { display: block; }
 
-        /* 🛠️ 修正：按鈕超出格子 */
+        /* 🛠️ 修正：按鈕寬度鎖死，不超出格子 */
         .option-btn { 
             display: flex; justify-content: space-between; align-items: center; width: 100%; 
-            padding: 15px 20px; margin: 10px 0; background: white; border: 1px solid #eee; 
-            border-radius: 10px; cursor: pointer; box-sizing: border-box; overflow: hidden;
+            padding: 15px 18px; margin: 10px 0; background: white; border: 1px solid #eee; 
+            border-radius: 10px; cursor: pointer; box-sizing: border-box; transition: 0.2s;
         }
         .option-btn:hover { border-color: var(--accent); background: #f0f7ff; }
-        .option-text { flex: 1; font-weight: 500; font-size: 1.1em; text-align: left; word-break: break-all; }
+        .option-text { font-weight: 500; font-size: 1.05em; text-align: left; word-break: break-all; padding-right: 10px; }
 
-        /* 操作指引回歸 */
+        /* 指引區塊 */
         .guide-instruction { background: #ebf5fb; border-left: 5px solid var(--accent); padding: 15px; margin-bottom: 20px; border-radius: 4px; }
-        .guide-instruction h4 { margin: 0 0 5px 0; color: var(--accent); }
-
-        .input-field { width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 8px; font-size: 1em; box-sizing: border-box; margin-bottom: 15px; outline: none; }
-        .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; }
         
+        /* 欄位樣式 */
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; font-weight: bold; margin-bottom: 5px; color: var(--primary); }
+        .input-field { width: 100%; padding: 12px; border: 2px solid #dfe6e9; border-radius: 8px; font-size: 1em; box-sizing: border-box; outline: none; }
+        .input-field:focus { border-color: var(--accent); }
+
+        /* 防呆鎖定樣式 */
+        .locked-field { background-color: #f8f9fa !important; color: #7f8c8d !important; border: 1px dashed #ccc !important; cursor: not-allowed; }
+
+        .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; margin-top: 10px; }
         .step-item { padding: 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; }
         .step-item input { width: 22px; height: 22px; margin-right: 15px; flex-shrink: 0; }
 
-        .footer-version { text-align: center; padding: 15px; color: #bdc3c7; font-size: 0.8em; }
+        .footer-version { text-align: center; padding: 15px; color: #bdc3c7; font-size: 0.75em; }
     </style>
 </head>
 <body>
@@ -55,7 +64,10 @@
 </div>
 
 <div class="header">
-    <h1>拌合機故障排查系統</h1>
+    <div class="header-content">
+        <img src="logo.png" alt="何鑫" class="header-logo" onerror="this.style.display='none';">
+        <h1>拌合機故障排查智庫</h1>
+    </div>
 </div>
 
 <div class="container">
@@ -67,56 +79,70 @@
 
     <div id="DiagTab" class="tab-content active">
         <div id="diag-main-view">
-            <input type="text" class="input-field" oninput="filterGuides(this.value)" style="border-radius:30px;" placeholder="🔍 搜尋狀況...">
+            <input type="text" class="input-field" oninput="filterGuides(this.value)" style="border-radius:30px; margin-bottom:15px;" placeholder="🔍 搜尋故障關鍵字...">
             <div id="diag-options"></div>
         </div>
         <div id="checklist-container" style="display:none;">
             <div class="guide-instruction">
                 <h4>📋 操作指引說明</h4>
-                <p>請依照下列步驟排查故障。若問題持續，請聯繫廠務主管。</p>
+                <p>請依序排查並勾選。若問題未解決，請聯繫廠務部主管。</p>
             </div>
-            <h2 id="checklist-title"></h2>
+            <h2 id="checklist-title" style="color:var(--primary); margin-bottom:15px; border-bottom:2px solid var(--accent); padding-bottom:8px;"></h2>
             <div id="checklist-content"></div>
-            <button class="main-btn" style="background:var(--primary); margin-top:20px;" onclick="resetDiag()">← 返回</button>
+            <button class="main-btn" style="background:#95a5a6; margin-top:25px;" onclick="resetDiag()">← 返回系統清單</button>
         </div>
     </div>
 
     <div id="InputTab" class="tab-content">
-        <label>故障狀況描述</label>
-        <input type="text" id="f_issue" list="existing-issues" class="input-field" placeholder="描述現象">
-        <datalist id="existing-issues"></datalist>
+        <div id="duplicate-warning" style="display:none; background:#fff9e6; border-left:5px solid var(--warning); padding:12px; border-radius:8px; margin-bottom:15px; color:#856404; font-weight:bold;">
+            ⚠️ 系統提醒：此故障已存在智庫中，部位已自動鎖定。
+        </div>
 
-        <label>客戶 / 廠商名稱</label>
-        <input type="text" id="f_client" class="input-field" placeholder="例如：嘉泰、國產">
+        <div class="form-group">
+            <label class="form-label">故障狀況描述</label>
+            <input type="text" id="f_issue" list="existing-issues" oninput="checkDuplicate(this.value)" class="input-field" placeholder="例如：攪拌馬達過熱">
+            <datalist id="existing-issues"></datalist>
+        </div>
 
-        <label>所屬系統部位</label>
-        <select id="f_part" class="input-field">
-            <option value="動力系統">動力系統</option>
-            <option value="密封系統">密封系統</option>
-            <option value="卸料系統">卸料系統</option>
-            <option value="潤滑系統">潤滑系統</option>
-            <option value="攪拌系統">攪拌系統</option>
-            <option value="輸送系統">輸送系統</option>
-        </select>
+        <div class="form-group">
+            <label class="form-label">客戶 / 廠商名稱</label>
+            <input type="text" id="f_client" class="input-field" placeholder="輸入廠商名稱 (如：國產)">
+        </div>
 
-        <label>處理的做法 (每行一個步驟)</label>
-        <textarea id="f_steps" rows="5" class="input-field"></textarea>
+        <div class="form-group">
+            <label class="form-label">所屬系統部位</label>
+            <select id="f_part" class="input-field">
+                <option value="">-- 請選擇 --</option>
+                <option value="動力系統">動力系統</option>
+                <option value="密封系統">密封系統</option>
+                <option value="卸料系統">卸料系統</option>
+                <option value="潤滑系統">潤滑系統</option>
+                <option value="攪拌系統">攪拌系統</option>
+                <option value="輸送系統">輸送系統</option>
+            </select>
+        </div>
 
-        <button class="main-btn" onclick="saveData()">💾 儲存並同步</button>
+        <div class="form-group">
+            <label class="form-label">處理的做法 (每行一個步驟)</label>
+            <textarea id="f_steps" rows="5" class="input-field" placeholder="1. 檢查電源&#10;2. 重啟系統"></textarea>
+        </div>
+
+        <button class="main-btn" onclick="saveData()">💾 儲存並同步雲端</button>
     </div>
 
     <div id="LogTab" class="tab-content">
-        <table style="width:100%;" id="logTable">
-            <thead><tr style="background:#eee;"><th>日期</th><th>廠商</th><th>狀況</th><th>管理</th></tr></thead>
-            <tbody></tbody>
-        </table>
+        <div style="overflow-x: auto;">
+            <table style="width:100%; border-collapse: collapse; font-size:0.9em;" id="logTable">
+                <thead><tr style="background:#f8f9fa; border-bottom:2px solid #ddd;"><th style="padding:10px;">日期</th><th>廠商</th><th>狀況</th><th>管理</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<div class="footer-version">HEXIN V17.0.7 | 穩定登入修正版</div>
+<div class="footer-version">HEXIN V17.0.8 | 功能全數回歸穩定版</div>
 
 <script>
-    // ⚠️ 根據你的 Firebase 控制台精確校對
     const firebaseConfig = { 
         apiKey: "AIzaSyBg0uXJqmwY4LnN-wMj2_cpMwb2UODlS84", 
         authDomain: "hexin-database.firebaseapp.com",
@@ -135,7 +161,7 @@
     auth.onAuthStateChanged((user) => {
         if (user && user.email === "fac@herhsin.com") {
             isAdmin = true;
-            document.getElementById('admin-status').innerHTML = `🔑 已登入: ${user.email}`;
+            document.getElementById('admin-status').innerHTML = `🔑 歡迎：${user.email}`;
             document.getElementById('login-link').style.display = 'none';
             document.getElementById('logout-link').style.display = 'inline';
             document.getElementById('log-tab-btn').style.display = 'block';
@@ -156,13 +182,13 @@
             await auth.signInWithEmailAndPassword("fac@herhsin.com", password);
             alert("✅ 驗證成功");
         } catch (error) {
-            alert("❌ 登入失敗！\n錯誤原因：" + error.message);
+            alert("❌ 登入失敗！\n代碼：" + error.code + "\n請確保 Firebase 授權網域已包含 egcab2234-dev.github.io");
         }
     }
 
     function logoutAdmin() { if(confirm("確定登出？")) auth.signOut().then(() => location.reload()); }
 
-    database.ref('guide').on('value', (snap) => { guideDB = snap.val() || {}; resetDiag(); });
+    database.ref('guide').on('value', (snap) => { guideDB = snap.val() || {}; resetDiag(); updateDatalist(); });
     database.ref('logs').on('value', (snap) => { logsDB = snap.val() || {}; renderLogs(); });
 
     function resetDiag() {
@@ -174,7 +200,7 @@
         parts.forEach(part => {
             const btn = document.createElement('div');
             btn.className = 'option-btn';
-            btn.innerHTML = `<span class="option-text">📂 ${part}</span><span>→</span>`;
+            btn.innerHTML = `<span class="option-text">📂 ${part}</span><span style="color:#ccc;">展開 →</span>`;
             btn.onclick = () => showCategory(part);
             options.appendChild(btn);
         });
@@ -182,7 +208,7 @@
 
     function showCategory(partName) {
         const options = document.getElementById('diag-options');
-        options.innerHTML = `<h3 style="color:var(--accent);">${partName}</h3>`;
+        options.innerHTML = `<h3 style="color:var(--accent); margin-bottom:10px;">${partName}</h3>`;
         Object.keys(guideDB).forEach(key => {
             if(guideDB[key].part === partName) {
                 const btn = document.createElement('div');
@@ -192,6 +218,9 @@
                 options.appendChild(btn);
             }
         });
+        const back = document.createElement('button');
+        back.className = 'main-btn'; back.style.background = '#95a5a6'; back.innerHTML = '← 返回系統分類'; back.onclick = resetDiag;
+        options.appendChild(back);
     }
 
     function showChecklist(key) {
@@ -199,7 +228,31 @@
         document.getElementById('diag-main-view').style.display = 'none';
         document.getElementById('checklist-container').style.display = 'block';
         document.getElementById('checklist-title').innerText = item.issue;
-        document.getElementById('checklist-content').innerHTML = item.steps.map(s => `<div class="step-item"><label><input type="checkbox"> ${s}</label></div>`).join('');
+        document.getElementById('checklist-content').innerHTML = item.steps.map(s => `<div class="step-item"><label style="display:flex; cursor:pointer;"><input type="checkbox"> <span style="margin-left:10px">${s}</span></label></div>`).join('');
+    }
+
+    // ✨ 防呆機制回歸
+    function checkDuplicate(val) {
+        const warning = document.getElementById('duplicate-warning');
+        const partSelect = document.getElementById('f_part');
+        let match = Object.values(guideDB).find(i => i.issue.trim() === val.trim());
+        if(match) {
+            warning.style.display = 'block';
+            partSelect.value = match.part;
+            partSelect.disabled = true;
+            partSelect.classList.add('locked-field');
+        } else {
+            warning.style.display = 'none';
+            partSelect.disabled = false;
+            partSelect.classList.remove('locked-field');
+        }
+    }
+
+    function updateDatalist() {
+        const dl = document.getElementById('existing-issues'); dl.innerHTML = '';
+        Object.values(guideDB).forEach(item => {
+            let opt = document.createElement('option'); opt.value = item.issue; dl.appendChild(opt);
+        });
     }
 
     async function saveData() {
@@ -207,11 +260,11 @@
         const part = document.getElementById('f_part').value;
         const client = document.getElementById('f_client').value.trim();
         const steps = document.getElementById('f_steps').value.trim();
-        if(!issue || !steps) return alert("請完整填寫！");
+        if(!issue || !part || !steps) return alert("請填寫完整資訊！");
         const data = { part, issue, client, steps: steps.split('\n'), date: new Date().toLocaleDateString() };
         await database.ref('guide').push(data);
         await database.ref('logs').push(data);
-        alert("💾 資料已成功儲存");
+        alert("✅ 儲存成功");
         document.getElementById('f_issue').value = ""; document.getElementById('f_client').value = ""; document.getElementById('f_steps').value = "";
     }
 
@@ -220,7 +273,7 @@
         tbody.innerHTML = '';
         Object.keys(logsDB).reverse().forEach(key => {
             const log = logsDB[key];
-            tbody.innerHTML += `<tr><td style="padding:10px;">${log.date}</td><td>${log.client || '-'}</td><td>${log.issue}</td><td>${isAdmin ? '<button onclick="deleteLog(\''+key+'\')">刪</button>' : '-'}</td></tr>`;
+            tbody.innerHTML += `<tr><td style="padding:10px;">${log.date}</td><td>${log.client || '-'}</td><td>${log.issue}</td><td>${isAdmin ? '<button style="color:red; background:none; border:none; cursor:pointer;" onclick="deleteLog(\''+key+'\')">刪除</button>' : '-'}</td></tr>`;
         });
     }
 
