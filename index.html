@@ -40,9 +40,6 @@
         .checklist-left input[type="checkbox"] { width: 26px; height: 26px; margin-right: 18px; cursor: pointer; accent-color: var(--success); }
         
         .search-input { width: 100%; padding: 12px 20px; border: 2px solid var(--accent); border-radius: 30px; font-size: 1.05em; outline: none; box-sizing: border-box; margin-bottom: 20px; }
-        .locked-field { background-color: #f8f9fa !important; color: #7f8c8d !important; border: 1px dashed var(--warning) !important; cursor: not-allowed; }
-        .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 8px; text-align: center; }
         .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; }
 
         .footer-version { text-align: center; padding: 15px; color: #bdc3c7; font-size: 0.75em; }
@@ -73,7 +70,7 @@
     <div id="DiagTab" class="tab-content active">
         <div id="diag-main-view">
             <input type="text" class="search-input" oninput="filterGuides(this.value)" placeholder="🔍 搜尋故障關鍵字...">
-            <div id="diag-options">載入中...</div>
+            <div id="diag-options">正在從雲端載入資料...</div>
         </div>
         <div id="checklist-container" style="display:none;">
             <h3 id="checklist-title" style="color:var(--primary); margin-bottom:10px;"></h3>
@@ -88,12 +85,8 @@
             <input type="text" id="f_company" placeholder="客戶公司" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ddd;">
             <input type="text" id="f_factory" placeholder="廠別" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ddd;">
         </div>
-        <input type="text" id="f_issue" list="existing-issues" oninput="checkIssueDuplicate(this.value)" class="search-input" style="border-radius:8px; margin-bottom:15px;" placeholder="請輸入故障狀況描述">
+        <input type="text" id="f_issue" list="existing-issues" class="search-input" style="border-radius:8px; margin-bottom:15px;" placeholder="請輸入故障狀況描述">
         <datalist id="existing-issues"></datalist>
-        <div id="existing-steps-preview" style="display:none; background:#fff9e6; border:1px solid #ffe58f; padding:15px; border-radius:8px; margin-bottom:15px;">
-            <h5 style="margin:0 0 10px 0; color:#856404;">⚠️ 此故障已存在，補充內容將提交審核</h5>
-            <div id="steps-tags-container"></div>
-        </div>
         <select id="f_part" style="width:100%; padding:12px; border-radius:8px; margin-bottom:15px;">
             <option value="">-- 選擇所屬部位 --</option>
             <option value="動力系統">動力系統</option>
@@ -103,25 +96,16 @@
             <option value="攪拌系統">攪拌系統</option>
             <option value="輸送系統">輸送系統</option>
         </select>
-        <textarea id="f_steps" rows="6" style="width:100%; padding:12px; border-radius:8px; margin-bottom:10px;" placeholder="請填寫此故障的新做法 (每行一項)"></textarea>
+        <textarea id="f_steps" rows="6" style="width:100%; padding:12px; border-radius:8px; margin-bottom:10px;" placeholder="請填寫此故障的做法 (每行一項)"></textarea>
         <button class="main-btn" onclick="saveData()">💾 儲存並同步雲端</button>
     </div>
 
     <div id="LogTab" class="tab-content">
-        <h3 style="color:var(--primary);">📊 維修大數據分析</h3>
-        <div id="analytics-view" class="analytics-grid">
-            <div class="stat-card"><span id="stat-total" style="font-size:1.8em; color:var(--accent); font-weight:bold;">0</span><br><small>總維修件數</small></div>
-            <div class="stat-card"><span id="stat-top-company" style="font-size:1.4em; color:var(--success); font-weight:bold;">-</span><br><small>報修最高公司</small></div>
-        </div>
-        <div id="admin-log-tools" style="margin-bottom:15px; display:none;">
-            <button onclick="exportToCSV()" style="background:#607d8b; color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer;">📤 匯出 CSV</button>
-            <button onclick="clearAllLogs()" style="background:var(--danger); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; float:right;">⚠️ 清空日誌</button>
-        </div>
-        <input type="text" id="log-search" oninput="renderLogs()" class="search-input" style="font-size:0.9em; padding:10px;" placeholder="🔍 搜尋紀錄...">
+        <h3 style="color:var(--primary);">📊 維修紀錄分析</h3>
         <div style="overflow-x: auto;">
             <table id="logTable" style="width:100%; border-collapse: collapse; min-width:600px; font-size: 0.9em;">
                 <thead>
-                    <tr style="background:#f8f9fa;"><th>日期</th><th>公司</th><th>廠別</th><th>部位</th><th>狀況</th><th id="admin-th" style="display:none;">管理</th></tr>
+                    <tr style="background:#f8f9fa;"><th>日期</th><th>公司</th><th>廠別</th><th>狀況</th><th id="admin-th" style="display:none;">管理</th></tr>
                 </thead>
                 <tbody></tbody>
             </table>
@@ -129,14 +113,18 @@
     </div>
 </div>
 
-<div class="footer-version">HEXIN 3M3 SYSTEM | 版本號：V16.7.5 | 修正認證版</div>
+<div class="footer-version">HEXIN 3M3 SYSTEM | 版本號：V16.7.7 | 雲端連線版</div>
 
 <script>
-    // --- 【重要】請填入你 Firebase 的真實資訊 ---
+    // --- 【由圖片 image_0ea2bb.png 提取的正確配置】 ---
     const firebaseConfig = { 
-        apiKey: "你的API_KEY", 
-        authDomain: "你的PROJECT_ID.firebaseapp.com",
-        databaseURL: "https://hexin-database-default-rtdb.firebaseio.com/"
+        apiKey: "AIzaSyBg0uXJqmwY4LnN-wMj2_cpMwb2UODlS84", 
+        authDomain: "hexin-database.firebaseapp.com",
+        databaseURL: "https://hexin-database-default-rtdb.firebaseio.com",
+        projectId: "hexin-database",
+        storageBucket: "hexin-database.appspot.com",
+        messagingSenderId: "210866724253",
+        appId: "1:210866724253:web:2824417583a4ace84e2374"
     };
     
     firebase.initializeApp(firebaseConfig);
@@ -146,20 +134,16 @@
     let guideDB = {}; let logsDB = {}; let isAdmin = false;
 
     // --- 自動記住登入狀態 ---
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      .then(() => {
-          auth.onAuthStateChanged((user) => {
-              if (user && user.email === "fac@herhsin.com") {
-                  isAdmin = true;
-                  activateAdminUI(user.email);
-              } else {
-                  isAdmin = false;
-                  deactivateAdminUI();
-              }
-          });
-      });
+    auth.onAuthStateChanged((user) => {
+        if (user && user.email === "fac@herhsin.com") {
+            isAdmin = true;
+            activateAdminUI(user.email);
+        } else {
+            isAdmin = false;
+            deactivateAdminUI();
+        }
+    });
 
-    // --- 快速登入邏輯 ---
     async function loginAdmin() {
         const adminEmail = "fac@herhsin.com";
         const password = prompt("主管您好，請輸入授權密碼：");
@@ -167,30 +151,23 @@
 
         try {
             await auth.signInWithEmailAndPassword(adminEmail, password);
-            alert("✅ 驗證成功，本裝置已啟動自動登入。");
+            alert("✅ 登入成功！");
         } catch (error) {
-            if (error.code === "auth/wrong-password") {
-                alert("❌ 密碼錯誤！請檢查大小寫或數字是否正確。");
-            } else if (error.code === "auth/user-not-found") {
-                alert("❌ 找不到 fac@herhsin.com 帳號，請確認 Firebase 後台是否已新增該使用者。");
-            } else {
-                alert("❌ 登入失敗：\n" + error.message);
-            }
+            alert("❌ 登入失敗：\n" + error.message);
         }
     }
 
     function logoutAdmin() {
-        if(confirm("確定要登出管理員身分嗎？下次進入需重新輸入密碼。")) {
+        if(confirm("確定登出管理員嗎？")) {
             auth.signOut().then(() => { location.reload(); });
         }
     }
 
     function activateAdminUI(email) {
-        document.getElementById('admin-status').innerText = `🔑 管理者：${email}`;
+        document.getElementById('admin-status').innerText = `🔑 主管：${email}`;
         document.getElementById('login-link').style.display = 'none';
         document.getElementById('logout-link').style.display = 'inline';
         document.getElementById('log-tab-btn').style.display = 'block';
-        if(document.getElementById('admin-log-tools')) document.getElementById('admin-log-tools').style.display = 'block';
         if(document.getElementById('admin-th')) document.getElementById('admin-th').style.display = 'table-cell';
         renderLogs();
     }
@@ -202,8 +179,8 @@
         document.getElementById('log-tab-btn').style.display = 'none';
     }
 
-    // --- 資料讀取 ---
-    database.ref('guide').on('value', (snap) => { guideDB = snap.val() || {}; resetDiag(); updateDatalist(); });
+    // --- 資料同步 ---
+    database.ref('guide').on('value', (snap) => { guideDB = snap.val() || {}; resetDiag(); });
     database.ref('logs').on('value', (snap) => { logsDB = snap.val() || {}; renderLogs(); });
 
     async function saveData() {
@@ -216,27 +193,15 @@
 
         if(!part || !issue || !stepsRaw) { alert("請填寫完整資訊！"); return; }
         const newSteps = stepsRaw.split('\n').map(s => s.trim()).filter(s => s !== "");
-        let existingKey = Object.keys(guideDB).find(key => guideDB[key].issue === issue);
 
         try {
-            if(existingKey && !isAdmin) {
-                await database.ref('pending_reviews').push({ date, company, factory, part, issue, steps: newSteps });
-                alert("✅ 此故障已有指南，您的做法已提交審核。");
-            } else {
-                if(existingKey && isAdmin) {
-                    let final = [...new Set([...guideDB[existingKey].steps, ...newSteps])];
-                    await database.ref('guide/' + existingKey).update({ steps: final });
-                } else {
-                    await database.ref('guide').push({ part, issue, steps: newSteps });
-                }
-                await database.ref('logs').push({ date, company, factory, part, issue });
-                alert("✅ 資料已同步成功！");
-            }
+            await database.ref('guide').push({ part, issue, steps: newSteps });
+            await database.ref('logs').push({ date, company, factory, part, issue });
+            alert("✅ 同步成功！");
             document.getElementById('f_issue').value = ""; document.getElementById('f_steps').value = "";
-        } catch(e) { alert("同步失敗，請確認 Firebase Rules 設定。"); }
+        } catch(e) { alert("同步失敗，請確認權限。"); }
     }
 
-    // --- 分頁與列表渲染 ---
     function switchTab(id) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -249,25 +214,14 @@
         document.getElementById('checklist-container').style.display = 'none';
         const options = document.getElementById('diag-options');
         options.innerHTML = '';
-        const parts = [...new Set(Object.values(guideDB).map(i => i.part))];
-        parts.forEach(part => {
-            const btn = document.createElement('button');
+        if(Object.keys(guideDB).length === 0) { options.innerHTML = "目前尚無故障資料"; return; }
+        
+        Object.keys(guideDB).forEach(key => {
+            const item = guideDB[key];
+            const btn = document.createElement('div');
             btn.className = 'option-btn';
-            btn.innerHTML = `<span class="option-text">📂 ${part}</span><span class="option-badge">展開</span>`;
-            btn.onclick = () => {
-                options.innerHTML = `<h4 style="color:var(--accent); margin:10px 0;">[${part}] 故障清單：</h4>`;
-                Object.keys(guideDB).filter(k => guideDB[k].part === part).forEach(key => {
-                    const item = guideDB[key];
-                    const ibtn = document.createElement('div');
-                    ibtn.className = 'option-btn';
-                    ibtn.innerHTML = `<span class="option-text">❓ ${item.issue}</span><span class="option-badge">${item.steps.length} 步</span>`;
-                    ibtn.onclick = () => showChecklist(key);
-                    options.appendChild(ibtn);
-                });
-                const b = document.createElement('button');
-                b.className='option-btn'; b.style.justifyContent='center'; b.innerHTML='<b>← 返回分類</b>'; b.onclick=resetDiag;
-                options.appendChild(b);
-            };
+            btn.innerHTML = `<span class="option-text">❓ [${item.part}] ${item.issue}</span><span class="option-badge">查看</span>`;
+            btn.onclick = () => showChecklist(key);
             options.appendChild(btn);
         });
     }
@@ -278,14 +232,11 @@
         document.getElementById('checklist-container').style.display = 'block';
         document.getElementById('checklist-title').innerText = item.issue;
         const content = document.getElementById('checklist-content');
-        content.innerHTML = `<div class="instruction-box">請依照步驟逐一檢查，確認後勾選。</div>`;
+        content.innerHTML = `<div class="instruction-box">請依照步驟檢查：</div>`;
         item.steps.forEach((step, idx) => {
             const div = document.createElement('div');
             div.className = 'checklist-item';
-            div.innerHTML = `
-                <label class="checklist-left"><input type="checkbox"> <span>${step}</span></label>
-                ${isAdmin ? `<button onclick="deleteStep('${key}', ${idx})" style="color:red; border:none; background:none; cursor:pointer;">❌</button>` : ''}
-            `;
+            div.innerHTML = `<label class="checklist-left"><input type="checkbox"> <span>${step}</span></label>`;
             content.appendChild(div);
         });
     }
@@ -293,53 +244,14 @@
     function renderLogs() {
         const tbody = document.querySelector('#logTable tbody');
         if(!tbody) return;
-        const kw = document.getElementById('log-search').value.toLowerCase();
         tbody.innerHTML = '';
-        const logsArray = Object.values(logsDB);
-        if (logsArray.length > 0) {
-            document.getElementById('stat-total').innerText = logsArray.length;
-            const compMap = {};
-            logsArray.forEach(l => compMap[l.company] = (compMap[l.company] || 0) + 1);
-            document.getElementById('stat-top-company').innerText = Object.keys(compMap).reduce((a, b) => compMap[a] > compMap[b] ? a : b);
-        }
         Object.keys(logsDB).reverse().forEach(key => {
             const log = logsDB[key];
-            if(`${log.company}${log.factory}${log.issue}`.toLowerCase().includes(kw)) {
-                tbody.innerHTML += `<tr><td>${log.date}</td><td>${log.company}</td><td>${log.factory}</td><td>${log.part}</td><td>${log.issue}</td><td style="${isAdmin ? '' : 'display:none;'}"><button onclick="deleteLog('${key}')">❌</button></td></tr>`;
-            }
+            tbody.innerHTML += `<tr><td>${log.date}</td><td>${log.company}</td><td>${log.factory}</td><td>${log.issue}</td><td style="${isAdmin ? '' : 'display:none;'}"><button onclick="deleteLog('${key}')">❌</button></td></tr>`;
         });
     }
 
-    function checkIssueDuplicate(val) {
-        const partSelect = document.getElementById('f_part');
-        const previewBox = document.getElementById('existing-steps-preview');
-        let match = Object.values(guideDB).find(i => i.issue.trim() === val.trim());
-        if(match) {
-            partSelect.value = match.part; partSelect.disabled = true; partSelect.classList.add('locked-field');
-            document.getElementById('steps-tags-container').innerHTML = match.steps.map(s => `<span style="display:inline-block; background:white; padding:5px; margin:2px; border:1px solid #ddd; font-size:0.8em;">✓ ${s}</span>`).join('');
-            previewBox.style.display = 'block';
-        } else {
-            partSelect.disabled = false; partSelect.classList.remove('locked-field'); previewBox.style.display = 'none';
-        }
-    }
-
-    function updateDatalist() { const dl = document.getElementById('existing-issues'); if(dl) { dl.innerHTML = ''; Object.values(guideDB).forEach(item => { let opt = document.createElement('option'); opt.value = item.issue; dl.appendChild(opt); }); } }
-    function filterGuides(kw) {
-        if(!kw) { resetDiag(); return; }
-        const options = document.getElementById('diag-options'); options.innerHTML = '';
-        Object.keys(guideDB).forEach(key => {
-            const item = guideDB[key];
-            if(item.issue.includes(kw)) {
-                const ibtn = document.createElement('div'); ibtn.className = 'option-btn';
-                ibtn.innerHTML = `<span class="option-text"><small>[${item.part}]</small> ${item.issue}</span>`;
-                ibtn.onclick = () => showChecklist(key); options.appendChild(ibtn);
-            }
-        });
-    }
-    function exportToCSV() { let csv = "\uFEFF日期,公司,廠別,部位,狀況\n"; Object.values(logsDB).forEach(l => { csv += `${l.date},${l.company},${l.factory},${l.part},${l.issue}\n`; }); window.open(URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))); }
-    async function deleteLog(key) { if(confirm("刪除紀錄？")) await database.ref('logs/'+key).remove(); }
-    async function deleteStep(key, idx) { let s = [...guideDB[key].steps]; s.splice(idx,1); if(s.length===0) await database.ref('guide/'+key).remove(); else await database.ref('guide/'+key).update({steps: s}); showChecklist(key); }
-    async function clearAllLogs() { if(confirm("⚠️ 確定要清空所有紀錄嗎？此動作無法恢復！")) await database.ref('logs').remove(); }
+    async function deleteLog(key) { if(confirm("確定刪除？")) await database.ref('logs/'+key).remove(); }
 </script>
 </body>
 </html>
