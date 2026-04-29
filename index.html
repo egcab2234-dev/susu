@@ -9,59 +9,65 @@
     
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f6; --danger: #e74c3c; --warning: #f1c40f; --text: #333; }
-        html { overflow-y: scroll; }
-        body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; color: var(--text); line-height: 1.6; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        /* 1. 全域文字大小調整 (自適應) */
+        body { 
+            font-family: "Microsoft JhengHei", sans-serif; 
+            background: var(--bg); margin: 0; color: var(--text); 
+            line-height: 1.6;
+            font-size: clamp(16px, 2.5vw, 18px); /* 手機最小16px，電腦最大18px */
+        }
 
-        .header { background: var(--primary); color: white; padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .header-content { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 15px; max-width: 900px; margin: 0 auto; }
-        .header-logo { height: 55px; width: auto; max-width: 150px; object-fit: contain; }
-        .header h1 { margin: 0; font-size: 1.5em; letter-spacing: 1px; }
-
-        .admin-bar { background: #1a252f; color: #95a5a6; padding: 10px 20px; text-align: right; font-size: 0.9em; }
-        .container { width: 95%; max-width: 800px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; flex: 1; display: flex; flex-direction: column; }
+        .header h1 { font-size: clamp(1.2rem, 4vw, 1.8rem); margin: 0; }
+        
+        .admin-bar { background: #1a252f; color: #95a5a6; padding: 10px 20px; text-align: right; font-size: 0.85rem; }
+        .container { width: 95%; max-width: 900px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
         
         .tab-menu { display: flex; background: #34495e; }
-        .tab-btn { flex: 1; padding: 18px 10px; border: none; color: #bdc3c7; cursor: pointer; background: none; font-size: 1.05em; transition: 0.3s; text-align: center; }
+        .tab-btn { flex: 1; padding: clamp(12px, 3vw, 18px); border: none; color: #bdc3c7; cursor: pointer; background: none; font-size: 1rem; }
         .tab-btn.active { background: var(--accent); color: white; font-weight: bold; }
 
-        .tab-content { display: none; padding: 25px; box-sizing: border-box; }
+        .tab-content { display: none; padding: clamp(15px, 4vw, 30px); box-sizing: border-box; }
         .tab-content.active { display: block; }
 
-        .option-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 18px 20px; margin: 10px 0; background: white; border: 1px solid #eee; border-radius: 10px; text-align: left; cursor: pointer; box-sizing: border-box; transition: 0.2s; }
-        .option-btn:hover { border-color: var(--accent); background: #f0f7ff; transform: translateY(-2px); }
-        
-        /* 鎖死的操作指引樣式 */
-        .instruction-box { background: #ebf5fb; border-left: 5px solid var(--accent); padding: 15px; margin-bottom: 20px; border-radius: 4px; color: #2c3e50; }
-        .instruction-box strong { color: var(--accent); font-size: 1.1em; }
+        .option-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 18px; margin: 10px 0; background: white; border: 1px solid #eee; border-radius: 10px; cursor: pointer; font-size: 1rem; }
+        .option-btn:hover { border-color: var(--accent); background: #f0f7ff; }
 
-        .checklist-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
-        .checklist-item input[type="checkbox"] { width: 22px; height: 22px; margin-right: 15px; flex-shrink: 0; cursor: pointer; }
+        .instruction-box { background: #ebf5fb; border-left: 5px solid var(--accent); padding: 15px; margin-bottom: 20px; border-radius: 4px; font-size: 0.95rem; }
+
+        .search-input, select, textarea { 
+            width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; 
+            font-size: 1rem; box-sizing: border-box; margin-bottom: 15px;
+        }
+        .search-input:focus { border-color: var(--accent); outline: none; }
+
+        .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.1rem; font-weight: bold; }
         
-        .search-input { width: 100%; padding: 12px 20px; border: 2px solid var(--accent); border-radius: 30px; font-size: 1.05em; outline: none; box-sizing: border-box; margin-bottom: 20px; }
-        .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; }
-        .footer-version { text-align: center; padding: 15px; color: #bdc3c7; font-size: 0.75em; }
+        /* 歷史辦法顯示區 */
+        .history-list { background: #fff9e6; border: 1px solid #ffe58f; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
+        th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
+        th { background: #f8f9fa; }
     </style>
 </head>
 <body>
 
 <div class="admin-bar">
     <span id="admin-status">👤 訪客模式</span> | 
-    <a href="javascript:void(0)" onclick="loginWithCloudCode()" id="login-link" style="color:#3498db; text-decoration:none; font-weight:bold;">🔓 管理登入</a>
-    <a href="javascript:void(0)" onclick="logoutAdmin()" id="logout-link" style="color:#e74c3c; text-decoration:none; display:none; font-weight:bold;">🔒 安全登出</a>
+    <a href="javascript:void(0)" onclick="loginWithCloudCode()" id="login-link" style="color:#3498db; text-decoration:none;">🔓 管理登入</a>
+    <a href="javascript:void(0)" onclick="logoutAdmin()" id="logout-link" style="color:#e74c3c; text-decoration:none; display:none;">🔒 安全登出</a>
 </div>
 
-<div class="header">
-    <div class="header-content">
-        <img src="logo.png" alt="何鑫實業" class="header-logo" onerror="this.style.display='none';">
-        <h1>拌合機故障排查 雲端智庫</h1>
-    </div>
+<div class="header" style="background: var(--primary); color: white; padding: 20px; text-align: center;">
+    <h1>何鑫實業 拌合機故障智庫</h1>
 </div>
 
 <div class="container">
     <div class="tab-menu">
         <button class="tab-btn active" onclick="switchTab('DiagTab')">🔍 排除指南</button>
         <button class="tab-btn" onclick="switchTab('InputTab')">✍️ 經驗回報</button>
-        <button id="log-tab-btn" class="tab-btn" style="display:none;" onclick="switchTab('LogTab')">📋 維修分析</button>
+        <button id="log-tab-btn" class="tab-btn" style="display:none;" onclick="switchTab('LogTab')">📊 維修分析</button>
     </div>
 
     <div id="DiagTab" class="tab-content active">
@@ -69,81 +75,86 @@
             <input type="text" class="search-input" oninput="filterGuides(this.value)" placeholder="🔍 搜尋故障關鍵字...">
             <div id="diag-options">載入中...</div>
         </div>
-        
         <div id="checklist-container" style="display:none;">
-            <div class="instruction-box">
-                <strong>📋 操作指引：</strong><br>
-                請依照下列步驟逐一排除故障。確認完成後請勾選項目。
+            <div class="instruction-box"><strong>📋 操作指引：</strong> 請依序排查並勾選項目。</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--accent); padding-bottom:10px; margin-bottom:15px;">
+                <h3 id="checklist-title" style="margin:0;"></h3>
+                <button id="del-entire-issue" style="display:none; color:var(--danger); border:1px solid var(--danger); background:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="deleteEntireIssue()">🗑️ 刪除故障資料</button>
             </div>
-            
-            <h2 id="checklist-title" style="color:var(--primary); border-bottom:2px solid var(--accent); padding-bottom:10px; margin-top:0;"></h2>
-            <div id="checklist-content" style="background:white; border:1px solid #eee; border-radius:8px;"></div>
-            
+            <div id="checklist-content"></div>
             <button class="option-btn" style="justify-content:center; background:#95a5a6; color:white; font-weight:bold; margin-top:25px;" onclick="resetDiag()">← 返回故障列表</button>
         </div>
     </div>
 
     <div id="InputTab" class="tab-content">
-        <div style="display:flex; gap:10px; margin-bottom:15px;">
-            <input type="text" id="f_company" placeholder="客戶公司" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ddd;">
-            <input type="text" id="f_factory" placeholder="廠別" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ddd;">
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="f_company" placeholder="客戶公司">
+            <input type="text" id="f_factory" placeholder="廠別">
         </div>
-        <input type="text" id="f_issue" list="existing-issues" oninput="checkIssueDuplicate(this.value)" class="search-input" style="border-radius:8px; margin-bottom:15px;" placeholder="請描述故障狀況">
+        
+        <div id="history-box" class="history-list" style="display:none;">
+            <strong>💡 此故障已有解決辦法：</strong>
+            <ul id="history-steps" style="margin:5px 0; padding-left:20px;"></ul>
+        </div>
+
+        <input type="text" id="f_issue" list="existing-issues" oninput="checkIssueDuplicate(this.value)" class="search-input" placeholder="請描述故障狀況">
         <datalist id="existing-issues"></datalist>
-        <select id="f_part" style="width:100%; padding:12px; border-radius:8px; margin-bottom:15px;">
+        
+        <select id="f_part">
             <option value="">-- 選擇部位 --</option>
             <option value="動力系統">動力系統</option><option value="密封系統">密封系統</option><option value="卸料系統">卸料系統</option><option value="潤滑系統">潤滑系統</option><option value="攪拌系統">攪拌系統</option><option value="輸送系統">輸送系統</option>
         </select>
-        <textarea id="f_steps" rows="5" style="width:100%; padding:12px; border-radius:8px; margin-bottom:15px;" placeholder="請輸入處理做法 (每行一項)"></textarea>
-        <button class="main-btn" onclick="saveData()">💾 儲存並同步雲端</button>
+        <textarea id="f_steps" rows="5" placeholder="請輸入處理做法 (每行一項)"></textarea>
+        <button class="main-btn" onclick="saveData()">💾 儲存資料</button>
     </div>
 
     <div id="LogTab" class="tab-content">
         <div style="background:#fff; border:1px solid #eee; padding:15px; border-radius:8px; text-align:center; margin-bottom:20px;">
-            總報修件數：<span id="stat-total" style="font-size:1.5em; font-weight:bold; color:var(--accent);">0</span>
+            總報修件數：<span id="stat-total" style="font-size:1.5rem; font-weight:bold; color:var(--accent);">0</span>
+        </div>
+        <div class="instruction-box" style="background:#f4f7f6; border-left-color:#95a5a6;">
+            <strong>🛠️ 廠務分析建議：</strong> 目前紀錄已包含基本資訊。未來可考慮加入「更換零件名稱」與「維修耗時(分鐘)」，這能幫你分析哪類故障最花錢、哪位師傅效率最高。
         </div>
         <div style="overflow-x: auto;">
-            <table id="logTable" style="width:100%; border-collapse: collapse; font-size:0.9em;">
-                <thead><tr style="background:#f8f9fa;"><th>日期</th><th>公司</th><th>狀況</th><th>管理</th></tr></thead>
+            <table id="logTable">
+                <thead><tr><th>日期</th><th>客戶</th><th>故障狀況</th><th>管理</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
     </div>
 </div>
 
-<div class="footer-version">HEXIN V17.1.2 | 雲端密鑰保護版</div>
+<div style="text-align:center; padding:20px; color:#bdc3c7; font-size:0.8rem;">HEXIN V17.1.3 | 雲端智庫</div>
 
 <script>
     const firebaseConfig = { databaseURL: "https://hexin-database-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    let guideDB = {}; let logsDB = {}; let isAdmin = false;
+    let guideDB = {}; let logsDB = {}; let isAdmin = false; let currentIssueKey = "";
 
-    // ✨ 核心邏輯：連線到你截圖中的 adminConfig/password 比對
     async function loginWithCloudCode() {
-        const input = prompt("主管您好，請輸入管理員口令：");
+        const input = prompt("請輸入管理員口令：");
         if (!input) return;
         try {
-            const snapshot = await database.ref('adminConfig/password').once('value');
-            const correct = snapshot.val();
-            if (input === correct) {
-                isAdmin = true;
-                sessionStorage.setItem('isAdmin', 'true');
-                updateUIForAdmin();
-                alert("✅ 驗證成功");
+            const snap = await database.ref('adminConfig/password').once('value');
+            if (input === String(snap.val())) {
+                isAdmin = true; sessionStorage.setItem('isAdmin', 'true');
+                updateUI(); alert("✅ 登入成功");
             } else { alert("❌ 口令錯誤"); }
-        } catch (e) { alert("⚠️ 雲端連線失敗"); }
+        } catch (e) { alert("⚠️ 連線失敗"); }
     }
 
-    if(sessionStorage.getItem('isAdmin') === 'true') { isAdmin = true; setTimeout(updateUIForAdmin, 500); }
-
-    function updateUIForAdmin() {
-        document.getElementById('admin-status').innerText = "🔑 管理員模式";
-        document.getElementById('login-link').style.display = 'none';
-        document.getElementById('logout-link').style.display = 'inline';
-        document.getElementById('log-tab-btn').style.display = 'block';
-        renderLogs();
+    function updateUI() {
+        if(sessionStorage.getItem('isAdmin') === 'true') {
+            isAdmin = true;
+            document.getElementById('admin-status').innerText = "🔑 管理員模式";
+            document.getElementById('login-link').style.display = 'none';
+            document.getElementById('logout-link').style.display = 'inline';
+            document.getElementById('log-tab-btn').style.display = 'block';
+            document.getElementById('del-entire-issue').style.display = 'inline';
+            renderLogs();
+        }
     }
 
     function logoutAdmin() { sessionStorage.removeItem('isAdmin'); location.reload(); }
@@ -154,77 +165,90 @@
     function resetDiag() {
         document.getElementById('diag-main-view').style.display = 'block';
         document.getElementById('checklist-container').style.display = 'none';
-        const options = document.getElementById('diag-options');
-        options.innerHTML = '';
-        const parts = [...new Set(Object.values(guideDB).map(i => i.part))];
-        parts.forEach(part => {
-            const btn = document.createElement('button'); btn.className = 'option-btn';
-            btn.innerHTML = `<span class="option-text">📂 ${part}</span><span>→</span>`;
-            btn.onclick = () => {
-                options.innerHTML = `<h4 style="color:var(--accent); margin-bottom:10px;">${part} 清單：</h4>`;
-                Object.keys(guideDB).filter(k => guideDB[k].part === part).forEach(key => {
-                    const ibtn = document.createElement('div'); ibtn.className = 'option-btn';
-                    ibtn.innerHTML = `<span class="option-text">❓ ${guideDB[key].issue}</span>`;
-                    ibtn.onclick = () => showChecklist(key); options.appendChild(ibtn);
-                });
-                const b = document.createElement('button'); b.className='option-btn'; b.style.justifyContent='center'; b.innerHTML='<b>← 返回</b>'; b.onclick=resetDiag;
-                options.appendChild(b);
-            };
-            options.appendChild(btn);
+        const opt = document.getElementById('diag-options'); opt.innerHTML = '';
+        Object.keys(guideDB).forEach(key => {
+            const b = document.createElement('button'); b.className = 'option-btn';
+            b.innerHTML = `<span><strong>[${guideDB[key].part}]</strong> ${guideDB[key].issue}</span><span>→</span>`;
+            b.onclick = () => showChecklist(key); opt.appendChild(b);
         });
     }
 
     function showChecklist(key) {
+        currentIssueKey = key;
         const item = guideDB[key];
         document.getElementById('diag-main-view').style.display = 'none';
         document.getElementById('checklist-container').style.display = 'block';
         document.getElementById('checklist-title').innerText = item.issue;
-        const content = document.getElementById('checklist-content');
-        content.innerHTML = item.steps.map((s, i) => `
-            <div class="checklist-item">
-                <input type="checkbox"> <span style="flex:1;">${s}</span>
-                ${isAdmin ? `<button onclick="deleteStep('${key}', ${i})" style="color:red; border:none; background:none;">❌</button>` : ''}
+        const cont = document.getElementById('checklist-content');
+        cont.innerHTML = item.steps.map((s, i) => `
+            <div style="display:flex; align-items:center; padding:12px; border-bottom:1px solid #eee;">
+                <input type="checkbox" style="width:20px; height:20px; margin-right:12px;"> 
+                <span style="flex:1;">${s}</span>
+                ${isAdmin ? `<button onclick="deleteStep('${key}', ${i})" style="color:red; border:none; background:none; cursor:pointer;">❌</button>` : ''}
             </div>
         `).join('');
     }
 
+    // 2. 刪除整個故障的邏輯
+    async function deleteEntireIssue() {
+        if(confirm("❗ 確定要刪除整個「" + guideDB[currentIssueKey].issue + "」的資料嗎？這動作無法復原。")) {
+            await database.ref('guide/' + currentIssueKey).remove();
+            alert("已刪除"); resetDiag();
+        }
+    }
+
+    // 3. 顯示已有排除辦法的防呆
     function checkIssueDuplicate(val) {
+        const histBox = document.getElementById('history-box');
+        const histSteps = document.getElementById('history-steps');
         const partSelect = document.getElementById('f_part');
         let match = Object.values(guideDB).find(i => i.issue.trim() === val.trim());
-        if(match) { partSelect.value = match.part; partSelect.disabled = true; } else { partSelect.disabled = false; }
+        
+        if(match) {
+            histBox.style.display = 'block';
+            histSteps.innerHTML = match.steps.map(s => `<li>${s}</li>`).join('');
+            partSelect.value = match.part; partSelect.disabled = true;
+        } else {
+            histBox.style.display = 'none'; partSelect.disabled = false;
+        }
     }
 
     async function saveData() {
         const issue = document.getElementById('f_issue').value.trim();
         const stepsRaw = document.getElementById('f_steps').value.trim();
         const part = document.getElementById('f_part').value;
-        if(!part || !issue || !stepsRaw) return alert("請填寫完整");
+        if(!part || !issue || !stepsRaw) return alert("請填寫完整內容");
+        
         const newSteps = stepsRaw.split('\n').filter(s => s !== "");
         let exKey = Object.keys(guideDB).find(k => guideDB[k].issue === issue);
+        
         if(exKey) {
             let final = [...new Set([...guideDB[exKey].steps, ...newSteps])];
             await database.ref('guide/'+exKey).update({steps: final});
-        } else { await database.ref('guide').push({part, issue, steps: newSteps}); }
+        } else {
+            await database.ref('guide').push({part, issue, steps: newSteps});
+        }
         await database.ref('logs').push({date: new Date().toLocaleDateString(), company: document.getElementById('f_company').value, issue});
-        alert("✅ 同步成功"); location.reload();
+        alert("✅ 資料已同步"); location.reload();
     }
 
     function renderLogs() {
         const tbody = document.querySelector('#logTable tbody'); if(!tbody) return;
-        tbody.innerHTML = '';
         const logsArr = Object.keys(logsDB).reverse();
         document.getElementById('stat-total').innerText = logsArr.length;
-        logsArr.forEach(key => {
-            const log = logsDB[key];
-            tbody.innerHTML += `<tr><td style="padding:10px;">${log.date}</td><td>${log.company || '-'}</td><td>${log.issue}</td><td>${isAdmin ? `<button onclick="deleteLog('${key}')">❌</button>` : '-'}</td></tr>`;
-        });
+        tbody.innerHTML = logsArr.map(key => `
+            <tr><td>${logsDB[key].date}</td><td>${logsDB[key].company || '-'}</td><td>${logsDB[key].issue}</td>
+            <td>${isAdmin ? `<button onclick="deleteLog('${key}')" style="color:red; border:none; background:none;">❌</button>` : '-'}</td></tr>
+        `).join('');
     }
 
-    async function deleteLog(key) { if(confirm("刪除？")) await database.ref('logs/'+key).remove(); }
+    async function deleteLog(key) { if(confirm("刪除紀錄？")) await database.ref('logs/'+key).remove(); }
     async function deleteStep(key, i) { 
-        if(!confirm("刪除步驟？")) return;
+        if(!confirm("刪除此步驟？")) return;
         let s = [...guideDB[key].steps]; s.splice(i,1);
-        await database.ref('guide/'+key).update({steps: s}); showChecklist(key);
+        if(s.length === 0) await database.ref('guide/'+key).remove();
+        else await database.ref('guide/'+key).update({steps: s});
+        showChecklist(key);
     }
     function updateDatalist() {
         const dl = document.getElementById('existing-issues'); dl.innerHTML = '';
@@ -240,11 +264,13 @@
         const ops = document.getElementById('diag-options'); ops.innerHTML = '';
         Object.keys(guideDB).forEach(k => {
             if(guideDB[k].issue.includes(kw)) {
-                let d = document.createElement('div'); d.className='option-btn'; d.innerHTML=`<span class="option-text">[${guideDB[k].part}] ${guideDB[k].issue}</span>`;
+                let d = document.createElement('div'); d.className='option-btn';
+                d.innerHTML=`<span>[${guideDB[k].part}] ${guideDB[k].issue}</span>`;
                 d.onclick=()=>showChecklist(k); ops.appendChild(d);
             }
         });
     }
+    updateUI();
 </script>
 </body>
 </html>
