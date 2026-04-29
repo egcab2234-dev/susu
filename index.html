@@ -29,14 +29,13 @@
 
         .option-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 18px 20px; margin: 10px 0; background: white; border: 1px solid #eee; border-radius: 10px; text-align: left; cursor: pointer; box-sizing: border-box; transition: 0.2s; }
         .option-btn:hover { border-color: var(--accent); background: #f0f7ff; transform: translateY(-2px); }
-        .option-text { flex: 1; font-weight: 500; font-size: 1.1em; }
         
         /* 鎖死的操作指引樣式 */
         .instruction-box { background: #ebf5fb; border-left: 5px solid var(--accent); padding: 15px; margin-bottom: 20px; border-radius: 4px; color: #2c3e50; }
-        .instruction-box h4 { margin: 0 0 8px 0; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+        .instruction-box strong { color: var(--accent); font-size: 1.1em; }
 
         .checklist-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
-        .checklist-item input[type="checkbox"] { width: 22px; height: 22px; margin-right: 15px; flex-shrink: 0; }
+        .checklist-item input[type="checkbox"] { width: 22px; height: 22px; margin-right: 15px; flex-shrink: 0; cursor: pointer; }
         
         .search-input { width: 100%; padding: 12px 20px; border: 2px solid var(--accent); border-radius: 30px; font-size: 1.05em; outline: none; box-sizing: border-box; margin-bottom: 20px; }
         .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.2em; font-weight: bold; }
@@ -73,8 +72,8 @@
         
         <div id="checklist-container" style="display:none;">
             <div class="instruction-box">
-                <h4>📋 操作指引說明</h4>
-                <p style="margin:0; font-size:0.95em;">請依序排查並勾選。若完成後問題仍未解決，請聯繫廠務部門主管或相關技術人員。</p>
+                <strong>📋 操作指引：</strong><br>
+                請依照下列步驟逐一排除故障。確認完成後請勾選項目。
             </div>
             
             <h2 id="checklist-title" style="color:var(--primary); border-bottom:2px solid var(--accent); padding-bottom:10px; margin-top:0;"></h2>
@@ -85,14 +84,13 @@
     </div>
 
     <div id="InputTab" class="tab-content">
-        <h3 style="margin-top:0;">✍️ 新增維修經驗</h3>
         <div style="display:flex; gap:10px; margin-bottom:15px;">
             <input type="text" id="f_company" placeholder="客戶公司" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ddd;">
             <input type="text" id="f_factory" placeholder="廠別" style="flex:1; padding:12px; border-radius:8px; border:1px solid #ddd;">
         </div>
         <input type="text" id="f_issue" list="existing-issues" oninput="checkIssueDuplicate(this.value)" class="search-input" style="border-radius:8px; margin-bottom:15px;" placeholder="請描述故障狀況">
         <datalist id="existing-issues"></datalist>
-        <select id="f_part" style="width:100%; padding:12px; border-radius:8px; margin-bottom:15px; font-size:1em;" id="f_part">
+        <select id="f_part" style="width:100%; padding:12px; border-radius:8px; margin-bottom:15px;">
             <option value="">-- 選擇部位 --</option>
             <option value="動力系統">動力系統</option><option value="密封系統">密封系統</option><option value="卸料系統">卸料系統</option><option value="潤滑系統">潤滑系統</option><option value="攪拌系統">攪拌系統</option><option value="輸送系統">輸送系統</option>
         </select>
@@ -113,19 +111,16 @@
     </div>
 </div>
 
-<div class="footer-version">HEXIN V17.1.2 | 指引固定與雲端驗證版</div>
+<div class="footer-version">HEXIN V17.1.2 | 雲端密鑰保護版</div>
 
 <script>
-    const firebaseConfig = { 
-        databaseURL: "https://hexin-database-default-rtdb.firebaseio.com",
-        projectId: "hexin-database"
-    };
+    const firebaseConfig = { databaseURL: "https://hexin-database-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
     let guideDB = {}; let logsDB = {}; let isAdmin = false;
 
-    // 雲端驗證邏輯
+    // ✨ 核心邏輯：連線到你截圖中的 adminConfig/password 比對
     async function loginWithCloudCode() {
         const input = prompt("主管您好，請輸入管理員口令：");
         if (!input) return;
@@ -136,9 +131,9 @@
                 isAdmin = true;
                 sessionStorage.setItem('isAdmin', 'true');
                 updateUIForAdmin();
-                alert("✅ 權限已開啟");
+                alert("✅ 驗證成功");
             } else { alert("❌ 口令錯誤"); }
-        } catch (e) { alert("⚠️ 雲端連線失敗，請檢查資料庫 adminConfig 設定"); }
+        } catch (e) { alert("⚠️ 雲端連線失敗"); }
     }
 
     if(sessionStorage.getItem('isAdmin') === 'true') { isAdmin = true; setTimeout(updateUIForAdmin, 500); }
@@ -164,15 +159,15 @@
         const parts = [...new Set(Object.values(guideDB).map(i => i.part))];
         parts.forEach(part => {
             const btn = document.createElement('button'); btn.className = 'option-btn';
-            btn.innerHTML = `<span class="option-text">📂 ${part}</span><span style="color:#ccc;">展開 →</span>`;
+            btn.innerHTML = `<span class="option-text">📂 ${part}</span><span>→</span>`;
             btn.onclick = () => {
-                options.innerHTML = `<h4 style="color:var(--accent); margin-bottom:10px;">${part} - 故障清單：</h4>`;
+                options.innerHTML = `<h4 style="color:var(--accent); margin-bottom:10px;">${part} 清單：</h4>`;
                 Object.keys(guideDB).filter(k => guideDB[k].part === part).forEach(key => {
                     const ibtn = document.createElement('div'); ibtn.className = 'option-btn';
                     ibtn.innerHTML = `<span class="option-text">❓ ${guideDB[key].issue}</span>`;
                     ibtn.onclick = () => showChecklist(key); options.appendChild(ibtn);
                 });
-                const b = document.createElement('button'); b.className='option-btn'; b.style.justifyContent='center'; b.style.background='#f8f9fa'; b.innerHTML='<b>← 返回大類</b>'; b.onclick=resetDiag;
+                const b = document.createElement('button'); b.className='option-btn'; b.style.justifyContent='center'; b.innerHTML='<b>← 返回</b>'; b.onclick=resetDiag;
                 options.appendChild(b);
             };
             options.appendChild(btn);
@@ -187,9 +182,8 @@
         const content = document.getElementById('checklist-content');
         content.innerHTML = item.steps.map((s, i) => `
             <div class="checklist-item">
-                <input type="checkbox"> 
-                <span style="flex:1;">${s}</span>
-                ${isAdmin ? `<button onclick="deleteStep('${key}', ${i})" style="color:red; border:none; background:none; cursor:pointer;">❌</button>` : ''}
+                <input type="checkbox"> <span style="flex:1;">${s}</span>
+                ${isAdmin ? `<button onclick="deleteStep('${key}', ${i})" style="color:red; border:none; background:none;">❌</button>` : ''}
             </div>
         `).join('');
     }
@@ -197,27 +191,22 @@
     function checkIssueDuplicate(val) {
         const partSelect = document.getElementById('f_part');
         let match = Object.values(guideDB).find(i => i.issue.trim() === val.trim());
-        if(match) {
-            partSelect.value = match.part; partSelect.disabled = true;
-        } else { partSelect.disabled = false; }
+        if(match) { partSelect.value = match.part; partSelect.disabled = true; } else { partSelect.disabled = false; }
     }
 
     async function saveData() {
         const issue = document.getElementById('f_issue').value.trim();
         const stepsRaw = document.getElementById('f_steps').value.trim();
         const part = document.getElementById('f_part').value;
-        if(!part || !issue || !stepsRaw) return alert("請填寫完整內容");
+        if(!part || !issue || !stepsRaw) return alert("請填寫完整");
         const newSteps = stepsRaw.split('\n').filter(s => s !== "");
         let exKey = Object.keys(guideDB).find(k => guideDB[k].issue === issue);
         if(exKey) {
             let final = [...new Set([...guideDB[exKey].steps, ...newSteps])];
             await database.ref('guide/'+exKey).update({steps: final});
-        } else {
-            await database.ref('guide').push({part, issue, steps: newSteps});
-        }
+        } else { await database.ref('guide').push({part, issue, steps: newSteps}); }
         await database.ref('logs').push({date: new Date().toLocaleDateString(), company: document.getElementById('f_company').value, issue});
-        alert("✅ 資料已同步");
-        location.reload();
+        alert("✅ 同步成功"); location.reload();
     }
 
     function renderLogs() {
@@ -227,13 +216,13 @@
         document.getElementById('stat-total').innerText = logsArr.length;
         logsArr.forEach(key => {
             const log = logsDB[key];
-            tbody.innerHTML += `<tr><td style="padding:10px;">${log.date}</td><td>${log.company || '-'}</td><td>${log.issue}</td><td>${isAdmin ? `<button onclick="deleteLog('${key}')" style="color:red; border:none; background:none;">❌</button>` : '-'}</td></tr>`;
+            tbody.innerHTML += `<tr><td style="padding:10px;">${log.date}</td><td>${log.company || '-'}</td><td>${log.issue}</td><td>${isAdmin ? `<button onclick="deleteLog('${key}')">❌</button>` : '-'}</td></tr>`;
         });
     }
 
-    async function deleteLog(key) { if(confirm("確定刪除紀錄？")) await database.ref('logs/'+key).remove(); }
+    async function deleteLog(key) { if(confirm("刪除？")) await database.ref('logs/'+key).remove(); }
     async function deleteStep(key, i) { 
-        if(!confirm("確定刪除此步驟？")) return;
+        if(!confirm("刪除步驟？")) return;
         let s = [...guideDB[key].steps]; s.splice(i,1);
         await database.ref('guide/'+key).update({steps: s}); showChecklist(key);
     }
