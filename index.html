@@ -11,10 +11,10 @@
         :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f6; --danger: #e74c3c; --text: #333; }
         body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; color: var(--text); font-size: clamp(16px, 2.5vw, 18px); }
         
-        /* v17.1.5 Logo 排版加強 */
-        .header { background: var(--primary); color: white; padding: 15px 20px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        /* 鎖定 UI 排版 */
+        .header { background: var(--primary); color: white; padding: 15px 20px; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 15px; }
         .header-logo { height: 50px; width: auto; object-fit: contain; }
-        .header h1 { font-size: clamp(1.1rem, 3.5vw, 1.6rem); margin: 0; letter-spacing: 1px; }
+        .header h1 { font-size: clamp(1.1rem, 3.5vw, 1.6rem); margin: 0; }
 
         .admin-bar { background: #1a252f; color: #95a5a6; padding: 10px 20px; text-align: right; font-size: 0.85rem; }
         .container { width: 95%; max-width: 900px; margin: 20px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
@@ -22,7 +22,7 @@
         .tab-menu { display: flex; background: #34495e; }
         .tab-btn { flex: 1; padding: 15px; border: none; color: #bdc3c7; cursor: pointer; background: none; font-size: 1rem; }
         .tab-btn.active { background: var(--accent); color: white; font-weight: bold; }
-        .tab-content { display: none; padding: clamp(15px, 4vw, 30px); box-sizing: border-box; }
+        .tab-content { display: none; padding: 25px; box-sizing: border-box; }
         .tab-content.active { display: block; }
 
         .option-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 18px; margin: 10px 0; background: white; border: 1px solid #eee; border-radius: 10px; cursor: pointer; font-size: 1rem; }
@@ -34,11 +34,14 @@
         .form-group label { font-size: 0.9rem; color: #7f8c8d; margin-bottom: 5px; }
         .form-input { padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; width: 100%; box-sizing: border-box; }
         
-        .stat-card { background: #fff; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.1rem; font-weight: bold; }
+        
+        /* 管理員按鈕樣式 */
+        .admin-edit-btn { background: none; border: 1px solid #ddd; border-radius: 4px; padding: 4px 8px; cursor: pointer; margin-left: 5px; font-size: 0.8rem; }
+        .admin-edit-btn:hover { background: #eee; }
+        
         table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
         th, td { padding: 12px; border-bottom: 1px solid #eee; text-align: left; }
-        th { background: #f8f9fa; }
-        .main-btn { background: var(--success); color: white; border: none; padding: 16px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 1.1rem; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -50,8 +53,8 @@
 </div>
 
 <div class="header">
-    <img src="logo.png" alt="何鑫 Logo" class="header-logo" onerror="console.log('Logo 載入失敗，請確認檔案路徑');">
-    <h1>拌合機故障排查 雲端智庫</h1>
+    <img src="logo.png" alt="何鑫 Logo" class="header-logo" onerror="this.style.display='none'">
+    <h1>拌合機故障排查 智庫</h1>
 </div>
 
 <div class="container">
@@ -61,13 +64,14 @@
         <button id="log-tab-btn" class="tab-btn" style="display:none;" onclick="switchTab('LogTab')">📊 維修分析</button>
     </div>
 
+    <!-- 排除指南：鎖定資料夾結構，新增步驟編輯功能 -->
     <div id="DiagTab" class="tab-content active">
         <div id="diag-main-view">
-            <input type="text" class="form-input" oninput="filterGuides(this.value)" placeholder="🔍 搜尋故障關鍵字..." style="margin-bottom:20px; border-radius:30px; border-color:var(--accent);">
+            <input type="text" class="form-input" oninput="filterGuides(this.value)" placeholder="🔍 搜尋故障關鍵字..." style="margin-bottom:20px; border-radius:30px;">
             <div id="diag-options">載入中...</div>
         </div>
         <div id="checklist-container" style="display:none;">
-            <div class="instruction-box"><strong>📋 操作指引說明：</strong> 請依序排查並勾選。若完成後問題仍未解決，請聯繫廠務主管。</div>
+            <div class="instruction-box"><strong>📋 操作指引說明：</strong> 請依序排查並勾選。</div>
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--accent); padding-bottom:10px; margin-bottom:15px;">
                 <h3 id="checklist-title" style="margin:0;"></h3>
                 <button id="del-entire-issue" style="display:none; color:var(--danger); border:1px solid var(--danger); background:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="deleteEntireIssue()">🗑️ 刪除故障資料</button>
@@ -77,6 +81,7 @@
         </div>
     </div>
 
+    <!-- 經驗回報：鎖定欄位配置 -->
     <div id="InputTab" class="tab-content">
         <div class="form-row">
             <div class="form-group"><label>客戶公司</label><input type="text" id="f_company" class="form-input" placeholder="例如: 台灣水泥"></div>
@@ -85,7 +90,7 @@
         <div id="history-box" style="display:none; background:#fff9e6; padding:15px; border:1px solid #ffe58f; border-radius:8px; margin-bottom:15px; font-size:0.9rem;">
             <strong>💡 此故障已有解決辦法：</strong><ul id="history-steps" style="margin:5px 0;"></ul>
         </div>
-        <div class="form-group"><label>故障狀況描述</label><input type="text" id="f_issue" list="existing-issues" oninput="checkIssueDuplicate(this.value)" class="form-input" placeholder="請輸入故障描述"><datalist id="existing-issues"></datalist></div>
+        <div class="form-group"><label>故障狀況描述</label><input type="text" id="f_issue" list="existing-issues" oninput="checkIssueDuplicate(this.value)" class="form-input" placeholder="請描述故障現象"><datalist id="existing-issues"></datalist></div>
         <div class="form-group">
             <label>所屬系統部位</label>
             <select id="f_part" class="form-input">
@@ -93,14 +98,15 @@
                 <option value="動力系統">動力系統</option><option value="密封系統">密封系統</option><option value="卸料系統">卸料系統</option><option value="潤滑系統">潤滑系統</option><option value="攪拌系統">攪拌系統</option><option value="輸送系統">輸送系統</option>
             </select>
         </div>
-        <div class="form-group"><label>處理做法</label><textarea id="f_steps" class="form-input" rows="5" placeholder="請輸入處理步驟"></textarea></div>
+        <div class="form-group"><label>處理做法 (每行一個步驟)</label><textarea id="f_steps" class="form-input" rows="5" placeholder="1. 檢查...&#10;2. 更換..."></textarea></div>
         <button class="main-btn" onclick="saveData()">💾 儲存並同步雲端</button>
     </div>
 
+    <!-- 維修分析：鎖定統計表格 -->
     <div id="LogTab" class="tab-content">
         <div style="display:flex; gap:15px; margin-bottom:20px;">
-            <div class="stat-card" style="flex:1; text-align:center;"><small>總報修數</small><br><span id="stat-total" style="font-size:1.8rem; font-weight:bold; color:var(--accent);">0</span></div>
-            <div class="stat-card" style="flex:2;"><strong>🏢 客戶/廠別報修統計</strong><table id="client-stat-table" style="margin-top:10px;"><thead><tr><th>客戶(廠別)</th><th>件數</th></tr></thead><tbody></tbody></table></div>
+            <div style="flex:1; border:1px solid #eee; padding:15px; border-radius:8px; text-align:center;"><small>總報修數</small><br><span id="stat-total" style="font-size:1.8rem; font-weight:bold; color:var(--accent);">0</span></div>
+            <div style="flex:2; border:1px solid #eee; padding:15px; border-radius:8px;"><strong>🏢 客戶/廠別統計</strong><table id="client-stat-table" style="margin-top:10px;"><thead><tr><th>客戶廠別</th><th>件數</th></tr></thead><tbody></tbody></table></div>
         </div>
         <div style="overflow-x: auto;"><table id="logTable"><thead><tr><th>日期</th><th>客戶廠別</th><th>故障狀況</th><th>管理</th></tr></thead><tbody></tbody></table></div>
     </div>
@@ -166,10 +172,27 @@
         const cont = document.getElementById('checklist-content');
         cont.innerHTML = item.steps.map((s, i) => `
             <div style="display:flex; align-items:center; padding:12px; border-bottom:1px solid #eee;">
-                <input type="checkbox" style="width:22px; height:22px; margin-right:12px;"> <span style="flex:1;">${s}</span>
-                ${isAdmin ? `<button onclick="deleteStep('${key}', ${i})" style="color:red; border:none; background:none; cursor:pointer;">❌</button>` : ''}
+                <input type="checkbox" style="width:22px; height:22px; margin-right:12px;"> 
+                <span id="step-text-${i}" style="flex:1;">${s}</span>
+                ${isAdmin ? `
+                    <button onclick="editStep('${key}', ${i})" class="admin-edit-btn">✏️</button>
+                    <button onclick="deleteStep('${key}', ${i})" class="admin-edit-btn" style="color:red;">❌</button>
+                ` : ''}
             </div>
         `).join('');
+    }
+
+    // ✨ 新增：管理員編輯步驟功能
+    async function editStep(key, index) {
+        const currentText = guideDB[key].steps[index];
+        const newText = prompt("修改排除步驟內容（請確保術語統一）：", currentText);
+        if (newText !== null && newText.trim() !== "" && newText !== currentText) {
+            let updatedSteps = [...guideDB[key].steps];
+            updatedSteps[index] = newText.trim();
+            await database.ref('guide/' + key).update({ steps: updatedSteps });
+            alert("✅ 內容已更新");
+            showChecklist(key);
+        }
     }
 
     async function deleteEntireIssue() {
@@ -209,7 +232,7 @@
             const clientLabel = (log.company || '') + (log.factory ? `(${log.factory})` : '');
             if(clientLabel) stats[clientLabel] = (stats[clientLabel] || 0) + 1;
             return `<tr><td>${log.date}</td><td>${clientLabel || '-'}</td><td>${log.issue}</td>
-            <td>${isAdmin ? `<button onclick="deleteLog('${key}')" style="color:red; border:none; background:none;">❌</button>` : '-'}</td></tr>`;
+            <td>${isAdmin ? `<button onclick="deleteLog('${key}')" style="color:red; border:none; background:none; cursor:pointer;">❌</button>` : '-'}</td></tr>`;
         }).join('');
         sTbody.innerHTML = Object.entries(stats).sort((a,b)=>b[1]-a[1]).map(([n, c]) => `<tr><td>${n}</td><td><b>${c}</b></td></tr>`).join('');
     }
